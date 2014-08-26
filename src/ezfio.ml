@@ -244,6 +244,39 @@ type 'a ezfio_array =
 }
 ;;
 
+let ezfio_array_of_list ~rank ~dim ~data =
+  assert (rank > 0);
+  let read_1d data nmax =
+    let rec do_work accu data = function
+    | 0 -> (Array.of_list (List.rev accu), data)
+    | n -> 
+      begin
+        match data with
+        | x::rest -> do_work (x::accu) rest (n-1)
+        | [] -> raise (Failure "Array is not consistent")
+      end
+    in
+    let (data,rest) = do_work [] data nmax in
+    (Ezfio_item data,rest)
+  in
+  let rec read_nd data = function
+    | m when m<1 -> raise (Failure "dimension should not be <1")
+    | 1 -> read_1d data dim.(0)
+    | m ->
+      let rec do_work accu data = function
+      | 0 -> (Array.of_list (List.rev accu), data)
+      | n ->
+        let (newlist,rest) = read_nd data (m-1) in
+        do_work (newlist::accu) rest (n-1)
+      in
+      let (data,rest) = do_work [] data dim.(m-1) in
+      (Ezfio_data data,rest) 
+  in    
+  let (result,_) = read_nd data rank in
+  result
+;;
+
+
 let ezfio_get_element { rank=r ; dim=d ; data=data } coord =
   (*assert ((List.length coord) == r);*)
   let rec do_work buffer = function
