@@ -1,0 +1,17 @@
+#!/usr/bin/python
+
+import os
+ROOT = os.path.dirname(__file__)+'/../../'
+
+file = open(ROOT+'version','r') ;
+lines = file.readlines() ;
+file.close() ;
+v = map(int,lines[0].split('=')[1].split('.'));
+
+v[2] += 1
+lines[0] = "VERSION=%d.%d.%d\n"%tuple(v)
+
+file = open(ROOT+'version','w')
+file.writelines(lines)
+file.close()
+
