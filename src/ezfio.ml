@@ -273,7 +273,7 @@ let ezfio_array_of_list ~rank ~dim ~data =
       (Ezfio_data data,rest) 
   in    
   let (result,_) = read_nd data rank in
-  result
+  { rank=rank ; dim=dim ; data=result }
 ;;
 
 
