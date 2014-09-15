@@ -58,7 +58,7 @@ f2c = {
 f2ocaml = {
 'in' : 'int',
 're' : 'float',
-'i8' : 'int',
+'i8' : 'int64',
 'do' : 'float',
 'ch' : 'string',
 'lo' : 'bool'
