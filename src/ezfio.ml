@@ -193,6 +193,7 @@ let fortran_string_of_bool = function
 ;;
 
 let read_int   = read_scalar   int_of_string ;;
+let read_int64 = read_scalar Int64.of_string ;;
 let read_float = read_scalar float_of_string ;;
 let read_string= read_scalar (fun (x:string) -> x);;
 let read_bool  = read_scalar fortran_bool_of_string;;
@@ -202,10 +203,11 @@ Write
 -----
 *)
 
-let print_int out_channel i = Printf.fprintf out_channel "%16d\n" i
-and print_float out_channel f = Printf.fprintf out_channel "%24.15e\n" f
+let print_int    out_channel i = Printf.fprintf out_channel "%16d\n" i
+and print_int64  out_channel i = Printf.fprintf out_channel "%16Ld\n" i
+and print_float  out_channel f = Printf.fprintf out_channel "%24.15e\n" f
 and print_string out_channel s = Printf.fprintf out_channel "%s\n" s
-and print_bool out_channel b = Printf.fprintf out_channel "%s\n" (fortran_string_of_bool b);;
+and print_bool   out_channel b = Printf.fprintf out_channel "%s\n" (fortran_string_of_bool b);;
 
 let write_scalar print_fun group name s =
   check_readonly;
@@ -219,6 +221,7 @@ let write_scalar print_fun group name s =
 ;;
   
 let write_int    = write_scalar print_int
+and write_int64  = write_scalar print_int64
 and write_float  = write_scalar print_float
 and write_bool   = write_scalar print_bool
 and write_string = write_scalar print_string
@@ -394,6 +397,7 @@ let read_array type_conversion group name : 'a ezfio_array =
 ;;
   
 let read_int_array    = read_array          int_of_string
+and read_int64_array  = read_array        Int64.of_string
 and read_float_array  = read_array        float_of_string
 and read_bool_array   = read_array fortran_bool_of_string
 and read_string_array = read_array (fun (x:string) -> x)
@@ -429,6 +433,7 @@ let write_array print_fun group name a =
 ;;
 
 let write_int_array    = write_array print_int
+and write_int64_array  = write_array print_int64
 and write_float_array  = write_array print_float
 and write_string_array = write_array print_string
 and write_bool_array   = write_array print_bool;;
