@@ -104,6 +104,7 @@ let ltrim s =
   | ' ' -> do_work (String.sub s 1 (l-1)) (l-1)
   | _ -> s
   in
+  let l = String.length s in
   if (l > 0) then do_work s l
   else s
 ;;
@@ -116,6 +117,7 @@ let rtrim s =
   | ' ' -> do_work (String.sub s 0 (newl)) (newl)
   | _ -> s
   in
+  let l = String.length s in
   if (l > 0) then do_work s l
   else s
 ;;
