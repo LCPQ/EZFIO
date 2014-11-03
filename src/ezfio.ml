@@ -308,10 +308,10 @@ let ezfio_get_element { rank=r ; dim=d ; data=data } coord =
 
 let flattened_ezfio { rank ; dim ; data } =
   let flatten_2 d =
-    let l = List.map (function
+    let l = List.rev_map (function
       | Ezfio_item i -> i
       | Ezfio_data i -> assert false
-    ) (Array.to_list d)
+    ) (List.rev (Array.to_list d))
     in Array.concat l
   in
 
@@ -319,10 +319,10 @@ let flattened_ezfio { rank ; dim ; data } =
     if (rank = 2) then
       flatten_2 d
     else
-      let l = List.map (function
+      let l = List.rev_map (function
         | Ezfio_data x -> flatten_n (rank-1) x
         | Ezfio_item _ -> assert false
-      ) (Array.to_list d)
+      ) (List.rev (Array.to_list d))
       in Array.concat l
   in
 
