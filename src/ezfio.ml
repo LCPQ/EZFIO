@@ -306,19 +306,29 @@ let ezfio_get_element { rank=r ; dim=d ; data=data } coord =
 ;;
 
 
-let flattened_ezfio_data d = 
-  match d with
-  | Ezfio_item d -> d
-  | Ezfio_data d ->
-  let d = Array.to_list d in
-  let rec do_work accu = function
-  | [] -> accu
-  | (Ezfio_item x)::tail -> do_work (Array.append accu x) tail
-  | (Ezfio_data x)::tail -> 
-    let newaccu = do_work accu (Array.to_list x )
-    in  do_work newaccu tail
+let flattened_ezfio { rank ; dim ; data } =
+  let flatten_2 d =
+    let l = List.map (function
+      | Ezfio_item i -> i
+      | Ezfio_data i -> assert false
+    ) (Array.to_list d)
+    in Array.concat l
   in
-  do_work (Array.of_list []) d
+
+  let rec flatten_n rank d =
+    if (rank = 2) then
+      flatten_2 d
+    else
+      let l = List.map (function
+        | Ezfio_data x -> flatten_n (rank-1) x
+        | Ezfio_item _ -> assert false
+      ) (Array.to_list d)
+      in Array.concat l
+  in
+
+  match data with
+  | Ezfio_item d -> d
+  | Ezfio_data d -> flatten_n rank d
 ;;
 
 
@@ -367,13 +377,8 @@ let read_array type_conversion group name : 'a ezfio_array =
       assert (rank == Array.length dimensions) ;
       (* Read one-dimensional arrays *)
       let read_1d nmax = 
-        let rec do_work accu = function
-        | 0 -> Array.of_list (List.rev accu)
-        | n -> 
-          let trimmed_line = trim (input_line in_channel) in
-          do_work ( (type_conversion trimmed_line)::accu ) (n-1)
-        in
-        Ezfio_item (do_work [] nmax)
+        Ezfio_item (Array.init nmax (fun i->
+          type_conversion (trim (input_line in_channel))) )
       in
       (* Read multi-dimensional arrays *)
       let rec read_nd = function
@@ -419,7 +424,7 @@ let write_array print_fun group name a =
   let uz_filename = Filename.temp_file "" ".tmp" ~temp_dir:(Sys.getcwd ()) in
   let out_channel = open_out uz_filename in
   let { rank=rank ; dim=dimensions ; data=data } = a in
-  let data = flattened_ezfio_data data 
+  let data = flattened_ezfio a 
   in
   begin
      (* Write rank *)
