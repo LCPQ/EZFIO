@@ -430,7 +430,7 @@ let write_array print_fun group name a =
      (* Write rank *)
      Printf.fprintf out_channel "%3d\n" rank;
      (* Write dimensions *)
-     Array.iter (Printf.fprintf out_channel " %16d") dimensions;
+     Array.iter (Printf.fprintf out_channel " %20d") dimensions;
      Printf.fprintf out_channel "\n";
      Array.iter (print_fun out_channel) data;
      close_out out_channel ;
