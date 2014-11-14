@@ -207,8 +207,8 @@ Write
 -----
 *)
 
-let print_int    out_channel i = Printf.fprintf out_channel "%16d\n" i
-and print_int64  out_channel i = Printf.fprintf out_channel "%16Ld\n" i
+let print_int    out_channel i = Printf.fprintf out_channel "%20d\n" i
+and print_int64  out_channel i = Printf.fprintf out_channel "%20Ld\n" i
 and print_float  out_channel f = Printf.fprintf out_channel "%24.15e\n" f
 and print_string out_channel s = Printf.fprintf out_channel "%s\n" s
 and print_bool   out_channel b = Printf.fprintf out_channel "%s\n" (fortran_string_of_bool b);;
