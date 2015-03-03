@@ -4,6 +4,7 @@ import sys
 import os
 sys.path = [ os.path.dirname(__file__)+"/../Python" ]+sys.path
 import cPickle as pickle
+import zlib
 from ezfio import ezfio_obj, ezfio
 
 # Hide errors
@@ -13,10 +14,17 @@ ezfio.error = f
 
 
 def main():
+  do_verbose = False
+  if "-v" in sys.argv:
+    do_verbose = True
+    sys.argv.remove("-v")
+
   if len(sys.argv) == 1:
     print "syntax: %s <EZFIO_Filename>"%(sys.argv[0])
     sys.exit(1)
   ezfio_filename = sys.argv[1]
+  while ezfio_filename[-1] == "/":
+    ezfio_filename = ezfio_filename[:-1]
 
   ezfio.set_filename(ezfio_filename)
 
@@ -30,11 +38,13 @@ def main():
     try:
       exec """d['%s'] = ezfio.%s"""%(f_name,f_name)
     except:
-      print "%-40s [%5s]"%(f_name, "Empty")
+      if do_verbose:
+        print "%-40s [%5s]"%(f_name, "Empty")
     else:
-      print "%-40s [%5s]"%(f_name, " OK  ")
+      if do_verbose:
+        print "%-40s [%5s]"%(f_name, " OK  ")
 
-  dump = pickle.dumps(d)
+  dump = zlib.compress(pickle.dumps(d))
   file = open(ezfio_filename+".ezar","w")
   file.write(dump)
   file.close()

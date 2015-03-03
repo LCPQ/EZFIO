@@ -4,6 +4,7 @@ import sys
 import os
 sys.path = [ os.path.dirname(__file__)+"/../Python" ]+sys.path
 import cPickle as pickle
+import zlib
 from ezfio import ezfio_obj, ezfio
 
 # Hide errors
@@ -24,7 +25,7 @@ def main():
 
   ezfio.set_filename(ezfio_filename)
 
-  d = pickle.loads(dump)
+  d = pickle.loads(zlib.decompress(dump))
 
   set_functions = d.keys()
 
