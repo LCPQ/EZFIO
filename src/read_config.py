@@ -45,8 +45,8 @@ groups = {}
 group = None
 my_list = []
 for line, filename in lines:
+  line = line.lower()
   try:
-
     if len(line.strip()) == 0:
       groups[group] = my_list
     elif line[0] != ' ':  # New group

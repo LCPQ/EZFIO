@@ -24,36 +24,31 @@
 
  BEGIN_PROVIDER [ integer, PID ]
 &BEGIN_PROVIDER [ character*(8), PID_str ]
- implicit none
- BEGIN_DOC
- ! Current process ID
- END_DOC
- integer :: getpid
- PID = getpid()
- write(PID_str,'(I8.8)') PID
+  implicit none
+  BEGIN_DOC
+  ! Current process ID
+  END_DOC
+  integer                        :: getpid
+  PID = getpid()
+  write(PID_str,'(I8.8)') PID
 END_PROVIDER
 
 logical function ezfio_exists(path)
   implicit none
-  character*(*) :: path
+  character*(*)                  :: path
   inquire(file=trim(path)//'/.version',exist=ezfio_exists)
   if (ezfio_exists) then
-   open(unit=libezfio_iunit,file=trim(path)//'/.version')
-   character*(32) :: V
-   read(libezfio_iunit,*) V
-   close(libezfio_iunit)
-!  integer :: char_to_version
-!  if (char_to_version(V) > char_to_version(libezfio_version)) then
-!    call ezfio_error(irp_here, "This file was generated with version "//trim(V)//&
-!    " but the current installed version is "//trim(libezfio_version)//".")
-!  endif
+    open(unit=libezfio_iunit,file=trim(path)//'/.version')
+    character*(32)                 :: V
+    read(libezfio_iunit,*) V
+    close(libezfio_iunit)
   endif
 end function
 
 subroutine ezfio_mkdir(path)
   implicit none
-  character*(*) :: path
-  logical  :: ezfio_exists
+  character*(*)                  :: path
+  logical                        :: ezfio_exists
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
@@ -63,15 +58,14 @@ subroutine ezfio_mkdir(path)
     write(libezfio_iunit,'(A)') libezfio_version
     close(libezfio_iunit)
   endif
-
 end subroutine 
 
 
 subroutine libezfio_openz(filename,mode,err)
  implicit none
- character*(*) :: filename, mode
- character*(1024) :: fifo
- integer       :: err
+ character*(*)                  :: filename, mode
+ character*(1024)               :: fifo
+ integer                        :: err
  fifo = trim(filename)//'.'//PID_str
  err=1
  
@@ -89,8 +83,8 @@ end
 
 subroutine libezfio_closez(filename,mode)
  implicit none
- character*(*) :: filename, mode
- character*(1024)   :: fifo
+ character*(*)                  :: filename, mode
+ character*(1024)               :: fifo
  fifo = trim(filename)//'.'//PID_str
  if (mode(1:1) == 'w') then
    close(unit=libezfio_iunit)
@@ -108,12 +102,12 @@ from f_types import format, t_short
 template = """
 subroutine ezfio_read_%(type_short)s(dir,fil,dat)
   implicit none
-  character*(*), intent(in)  :: dir, fil
-  %(type)s, intent(out) :: dat
-  character*(1024) :: l_filename
+  character*(*), intent(in)      :: dir, fil
+  %(type)s, intent(out)          :: dat
+  character*(1024)               :: l_filename
   l_filename=trim(dir)//'/'//fil
-  open(unit=libezfio_iunit,file=l_filename,form='FORMATTED', &
-  action='READ',err=9)
+  open(unit=libezfio_iunit,file=l_filename,form='FORMATTED',         &
+      action='READ',err=9)
   read(libezfio_iunit,%(fmt)s,end=9,err=9) dat
   close(libezfio_iunit)
   return
@@ -123,9 +117,9 @@ end
 
 subroutine ezfio_write_%(type_short)s(dir,fil,dat)
   implicit none
-  character*(*), intent(in)  :: dir, fil
-  %(type)s, intent(in) :: dat
-  character*(1024) :: l_filename(2)
+  character*(*), intent(in)      :: dir, fil
+  %(type)s, intent(in)           :: dat
+  character*(1024)               :: l_filename(2)
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
@@ -139,45 +133,45 @@ end
 
 subroutine ezfio_read_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
   implicit none
-  character*(*), intent(in)  :: dir, fil
-  integer             :: rank
-  integer             :: dims(rank)
-  integer             :: dim_max
-  %(type)s            :: dat(dim_max)
-  integer :: err
-  character*(1024) :: l_filename
+  character*(*), intent(in)      :: dir, fil
+  integer                        :: rank
+  integer                        :: dims(rank)
+  integer                        :: dim_max
+  %(type)s                       :: dat(dim_max)
+  integer                        :: err
+  character*(1024)               :: l_filename
   l_filename=trim(dir)//'/'//fil//'.gz'
-
+  
   err = 0
   call libezfio_openz(trim(l_filename),'rb',err)
   if (err == 0) then
-    integer :: rank_read
-    integer :: dims_read(rank), i
-
+    integer                        :: rank_read
+    integer                        :: dims_read(rank), i
+    
     read(libezfio_iunit,'(I3)') rank_read
     if (rank_read /= rank) then
-      call ezfio_error(irp_here,'Rank of data '//trim(l_filename)//&
-      ' different from array.')
+      call ezfio_error(irp_here,'Rank of data '//trim(l_filename)//  &
+          ' different from array.')
     endif
-
+    
     if (err /= 0) then
       call ezfio_error(irp_here,'Error reading data in '//trim(l_filename)//&
-      '.')
+          '.')
     endif
     read(libezfio_iunit,'(30(I20,X))') dims_read(1:rank)
     do i=1,rank
       if (dims_read(i) /= dims(i)) then
         call ezfio_error(irp_here,'Dimensions of data '//trim(l_filename)//&
-        ' different from array.')
+            ' different from array.')
       endif
     enddo
-   
+    
     do i=1,dim_max
-     if (err /= 0) then
-      call ezfio_error(irp_here,'Error reading data in '//trim(l_filename)//&
-      '.')
-     endif
-     read(libezfio_iunit,%(fmt)s) dat(i)
+      if (err /= 0) then
+        call ezfio_error(irp_here,'Error reading data in '//trim(l_filename)//&
+            '.')
+      endif
+      read(libezfio_iunit,%(fmt)s) dat(i)
     enddo
     call libezfio_closez(trim(l_filename),'r')
     return
@@ -185,30 +179,31 @@ subroutine ezfio_read_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
     call ezfio_error(irp_here,'Attribute '//trim(l_filename)//' is not set')
   endif
 end
+
 subroutine ezfio_write_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
   implicit none
-  character*(*), intent(in)  :: dir, fil
-  integer, intent(in) :: rank
-  integer, intent(in) :: dims(rank)
-  integer, intent(in) :: dim_max
-  %(type)s, intent(in) :: dat(dim_max)
-  integer :: err
-  character*(1024) :: l_filename(2)
+  character*(*), intent(in)      :: dir, fil
+  integer, intent(in)            :: rank
+  integer, intent(in)            :: dims(rank)
+  integer, intent(in)            :: dim_max
+  %(type)s, intent(in)           :: dat(dim_max)
+  integer                        :: err
+  character*(1024)               :: l_filename(2)
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
   l_filename(1)=trim(dir)//'/.'//fil//PID_str//'.gz'
   l_filename(2)=trim(dir)//'/'//fil//'.gz'
-
+  
   err = 0
   call libezfio_openz(trim(l_filename(1)),'wb',err)
   if (err == 0) then
     write(libezfio_iunit,'(I3)') rank
     write(libezfio_iunit,'(30(I20,X))') dims(1:rank)
-
-    integer :: i
+    
+    integer                        :: i
     do i=1,dim_max
-     write(libezfio_iunit,%(fmt)s) dat(i)
+      write(libezfio_iunit,%(fmt)s) dat(i)
     enddo
     call libezfio_closez(trim(l_filename(1)),'w')
   endif
@@ -218,19 +213,19 @@ end
 
 template_no_logical = """
 integer function n_count_%(type_short)s(array,isize,val)
-  %(type)s, intent(in) :: array(*)
-  integer, intent(in)  :: isize
-  %(type)s, intent(in) :: val
-
-  integer :: i
+  %(type)s, intent(in)           :: array(*)
+  integer, intent(in)            :: isize
+  %(type)s, intent(in)           :: val
+  
+  integer                        :: i
   n_count_%(type_short)s = 0
   do i=1,isize
-   if (array(i) == val) then
-     n_count_%(type_short)s = n_count_%(type_short)s +1
-   endif
+    if (array(i) == val) then
+      n_count_%(type_short)s = n_count_%(type_short)s +1
+    endif
   enddo
-
 end function
+
 ! Build Python functions
 """
 for t in format.keys():
@@ -334,81 +329,80 @@ file_py.close()
 END_SHELL
 
 BEGIN_PROVIDER [ integer, libezfio_buffer_rank ]
- BEGIN_DOC  
-! Rank of the buffer ready for reading
+ BEGIN_DOC
+ ! Rank of the buffer ready for reading
  END_DOC
  libezfio_buffer_rank = -1
 END_PROVIDER
 
 subroutine ezfio_open_write_buffer(dir,fil,rank)
   implicit none
-  character*(*),intent(in)    :: dir
-  character*(*),intent(in)    :: fil
-  integer,intent(in)          :: rank
-  character*(1024) :: l_filename
+  character*(*),intent(in)       :: dir
+  character*(*),intent(in)       :: fil
+  integer,intent(in)             :: rank
+  character*(1024)               :: l_filename
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
   l_filename=trim(dir)//'/'//fil//'.gz'
-
+  
   if (libezfio_buffer_rank /= -1) then
     call ezfio_error(irp_here,'Another buffered file is already open.')
   endif
-
+  
   libezfio_buffer_rank = rank
   if (libezfio_buffer_rank <= 0) then
     call ezfio_error(irp_here,'In file '//trim(l_filename)//': rank <= 0.')
   endif
   TOUCH libezfio_buffer_rank
-
-  integer :: err
+  
+  integer                        :: err
   call libezfio_openz(trim(l_filename),'wb',err)
   if (err /= 0) then
     call ezfio_error(irp_here,'Unable to open buffered file '//trim(l_filename)//'.')
   endif
-
+  
   write(libezfio_iunit,'(I2)') rank
-
 end
 
 subroutine ezfio_open_read_buffer(dir,fil,rank)
   implicit none
-  character*(*),intent(in)    :: dir
-  character*(*),intent(in)    :: fil
-  integer,intent(in)         :: rank
-  character*(1024) :: l_filename
+  character*(*),intent(in)       :: dir
+  character*(*),intent(in)       :: fil
+  integer,intent(in)             :: rank
+  character*(1024)               :: l_filename
   l_filename=trim(dir)//'/'//fil//'.gz'
-
+  
   if (libezfio_buffer_rank /= -1) then
     call ezfio_error(irp_here,'Another buffered file is already open.')
   endif
-
-  integer :: err
+  
+  integer                        :: err
   call libezfio_openz(trim(l_filename),'rb',err)
   if (err /= 0) then
     print *,  err, l_filename
     call ezfio_error(irp_here,'Unable to open buffered file '//trim(l_filename)//'.')
   endif
-
+  
   if (err /= 0) then
     print *,  err, l_filename
     call ezfio_error(irp_here,'Unable to read buffered file '//trim(l_filename)//'.')
   endif
-
+  
   read(libezfio_iunit,'(I2)') libezfio_buffer_rank
   if (libezfio_buffer_rank /= rank) then
     call ezfio_error(irp_here,'In file '//trim(l_filename)//': Rank is not correct')
   endif
   TOUCH libezfio_buffer_rank
-
+  
 end
 
 subroutine ezfio_close_read_buffer(dir,fil,rank)
   implicit none
-  character*(*),intent(in)    :: dir
-  character*(*),intent(in)    :: fil
-  integer,intent(in)         :: rank
-  character*(1024) :: l_filename
+  character*(*),intent(in)       :: dir
+  character*(*),intent(in)       :: fil
+  integer,intent(in)             :: rank
+  character*(1024)               :: l_filename
   l_filename=trim(dir)//'/'//fil//'.gz'
   ASSERT (libezfio_buffer_rank > 0)
   call libezfio_closez(l_filename,'r')
@@ -417,10 +411,10 @@ end
 
 subroutine ezfio_close_write_buffer(dir,fil,rank)
   implicit none
-  character*(*),intent(in)    :: dir
-  character*(*),intent(in)    :: fil
-  integer,intent(in)         :: rank
-  character*(1024) :: l_filename
+  character*(*),intent(in)       :: dir
+  character*(*),intent(in)       :: fil
+  integer,intent(in)             :: rank
+  character*(1024)               :: l_filename
   l_filename=trim(dir)//'/'//fil//'.gz'
   ASSERT (libezfio_buffer_rank > 0)
   call libezfio_closez(l_filename,'w')
@@ -429,19 +423,19 @@ end
 
 subroutine ezfio_read_buffer(indices,values,isize)
   implicit none
-
-  integer, intent(inout)        :: isize
-  integer, intent(out)          :: indices(*)
-  double precision, intent(out) :: values(isize)
-
-  integer         :: i, j
-
+  
+  integer, intent(inout)         :: isize
+  integer, intent(out)           :: indices(*)
+  double precision, intent(out)  :: values(isize)
+  
+  integer                        :: i, j
+  
   if (libezfio_buffer_rank == -1) then
     call ezfio_error(irp_here,'No buffered file is open.')
   endif
-
+  
   do i=1,isize
-   read(libezfio_iunit,err=10) (indices((i-1)*libezfio_buffer_rank+j), j=1,libezfio_buffer_rank), values(i)
+    read(libezfio_iunit,err=10) (indices((i-1)*libezfio_buffer_rank+j), j=1,libezfio_buffer_rank), values(i)
   enddo
   return
   10 continue
@@ -450,14 +444,14 @@ end
 
 subroutine ezfio_write_buffer(indices,values,isize)
   implicit none
-
-  integer, intent(in)          :: isize
-  integer, intent(in)          :: indices(*)
-  double precision, intent(in) :: values(isize)
-
-  character*(80)   :: cformat
-  integer          :: i, j, k, num, imax, l1, l2
-
+  
+  integer, intent(in)            :: isize
+  integer, intent(in)            :: indices(*)
+  double precision, intent(in)   :: values(isize)
+  
+  character*(80)                 :: cformat
+  integer                        :: i, j, k, num, imax, l1, l2
+  
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
@@ -466,8 +460,8 @@ subroutine ezfio_write_buffer(indices,values,isize)
   endif
   
   write(cformat,*) '(',num,'(',libezfio_buffer_rank,'(I4,X),E24.15,A1))'
-  write(libezfio_iunit,cformat) ((indices((i-1)*libezfio_buffer_rank+j), j=1,libezfio_buffer_rank), &
-          values(i), i=1,isize)
-
+  write(libezfio_iunit,cformat) ((indices((i-1)*libezfio_buffer_rank+j), j=1,libezfio_buffer_rank),&
+      values(i), i=1,isize)
+  
 end
 
