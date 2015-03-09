@@ -8,9 +8,9 @@ import zlib
 from ezfio import ezfio_obj, ezfio
 
 # Hide errors
-#def f(where,txt):
-#  raise IOError
-#ezfio.error = f
+def f(where,txt):
+  raise IOError
+ezfio.error = f
 
 
 def main():
