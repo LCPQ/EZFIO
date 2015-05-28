@@ -27,6 +27,7 @@ DEFAULT_TARGET: python
 ../make.config:
 	make -C .. make.config
 include ../make.config
+export
 
 include irpf90.make
 

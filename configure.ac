@@ -62,6 +62,17 @@ if [[ "$PYTHON" = no ]] ; then
   AC_MSG_ERROR([Please install Python.])
 fi
 
+# Test Ninja
+# -----------
+
+if [[ -z "$NINJA" ]] ; then
+  AC_CHECK_PROG([NINJA],[ninja],[yes],[no])
+  if [[ "$NINJA" = no ]] ; then
+    NINJA=
+  fi
+fi
+AC_SUBST[[NINJA]]
+
 # Test AR
 # -------
 

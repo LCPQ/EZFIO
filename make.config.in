@@ -3,3 +3,4 @@ FC     = @FC@ -fPIC
 FCFLAGS= @FCFLAGS@
 RANLIB = @RANLIB@
 AR     = @AR@
+NINJA  = @NINJA@
