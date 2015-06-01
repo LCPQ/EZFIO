@@ -23,6 +23,9 @@
 !   scemama@irsamc.ups-tlse.fr
 
 program run
+  BEGIN_DOC
+! Test run
+  END_DOC
 ! Leave this empty
 end
 

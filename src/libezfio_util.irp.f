@@ -237,6 +237,10 @@ end
 
 template_no_logical = """
 integer function n_count_%(type_short)s(array,isize,val)
+  implicit none
+  BEGIN_DOC
+! Count number of elements of array of type %(type)s
+  END_DOC
   %(type)s, intent(in)           :: array(*)
   integer, intent(in)            :: isize
   %(type)s, intent(in)           :: val

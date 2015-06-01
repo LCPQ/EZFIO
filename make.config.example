@@ -1,0 +1,6 @@
+IRPF90 = irpf90
+FC     = gfortran -ffree-line-length-none -fPIC
+FCFLAGS= -O2
+RANLIB = ranlib
+AR     = ar
+NINJA  = ninja

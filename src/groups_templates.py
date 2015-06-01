@@ -89,7 +89,7 @@ end subroutine
 subroutine ezfio_free_%(group)s_%(var)s()
   implicit none
   BEGIN_DOC
-! Frees the memory for %(group)s/%(var) 
+! Frees the memory for %(group)s/%(var)s
   END_DOC
   FREE %(group)s_%(var)s
 end
@@ -149,7 +149,7 @@ end subroutine
 subroutine ezfio_free_%(group)s_%(var)s()
   implicit none
   BEGIN_DOC
-! Frees the memory for %(group)s/%(var) 
+! Frees the memory for %(group)s/%(var)s
   END_DOC
   FREE %(group)s_%(var)s
 end
@@ -175,7 +175,7 @@ end
 subroutine ezfio_free_%(group)s_%(var)s()
   implicit none
   BEGIN_DOC
-! Frees the memory for %(group)s/%(var) 
+! Frees the memory for %(group)s/%(var)s
   END_DOC
   FREE %(group)s_%(var)s
 end
@@ -226,7 +226,7 @@ end subroutine
 subroutine ezfio_free_%(group)s_%(var)s()
   implicit none
   BEGIN_DOC
-! Frees the memory for %(group)s/%(var) 
+! Frees the memory for %(group)s/%(var)s
   END_DOC
  FREE %(group)s_%(var)s
 end

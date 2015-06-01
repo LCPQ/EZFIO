@@ -39,11 +39,12 @@ Create an empty directory for your project and unpack the ``EZFIO.tar.gz`` file 
   $ ls
   EZFIO/
 
-Get into the ``EZFIO`` directory and run:
+Get into the ``EZFIO`` directory and set up your compiling options: 
 
 .. code-block:: bash
 
-  $ ./configure
+  $ cp make.config.example make.config
+  $ vim make.config
 
 Now, configure the library to produce the desired suboutines. Get into
 the ``config`` directory and create a new file ``test.config``

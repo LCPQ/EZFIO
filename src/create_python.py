@@ -1,3 +1,4 @@
+#!/bin/bash
 #   EZFIO is an automatic generator of I/O libraries
 #   Copyright (C) 2009 Anthony SCEMAMA, CNRS
 #
@@ -22,35 +23,9 @@
 #   31062 Toulouse Cedex 4      
 #   scemama@irsamc.ups-tlse.fr
 
-DEFAULT_TARGET: all
-
-include ../make.config
-export
-
-include irpf90.make
-
-irpf90.make: $(wildcard *.irp.f) ../config/*
-	$(IRPF90)
-
-include ../version
-
-.PHONY: static all
-
-all: static 
-
-static: ../lib/libezfio.a ../lib/libezfio_irp.a
-
-../lib/libezfio.a: IRPF90_temp/irpf90.a
-	rm -f ../lib/libezfio.a
-	$(AR) cru ../lib/libezfio.a $(OBJ1)
-	$(RANLIB) ../lib/libezfio.a
-
-../lib/libezfio_irp.a: ../lib/libezfio.a
-	rm -f ../lib/libezfio_irp.a
-	cp ../lib/libezfio.a ../lib/libezfio_irp.a
-	$(AR) dv ../lib/libezfio_irp.a irp_stack.irp.o
-	$(RANLIB) ../lib/libezfio_irp.a
-
-test: static
-	$(FC) -o $@ IRPF90_temp/run.irp.F90 -L../lib/ -lezfio
+def run():
+  with open('../Python/ezfio.py','w') as out:
+    for f in "ezfio-head.py libezfio_groups-gen.py libezfio_util-gen.py ezfio-tail.py".split():
+      with open(f,'r') as inp:
+          out.write(inp.read())
 
