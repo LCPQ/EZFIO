@@ -35,6 +35,9 @@ END_PROVIDER
 
 logical function ezfio_exists(path)
   implicit none
+  BEGIN_DOC
+! Checks if a file path exists
+  END_DOC
   character*(*)                  :: path
   inquire(file=trim(path)//'/.version',exist=ezfio_exists)
   if (ezfio_exists) then
@@ -47,6 +50,9 @@ end function
 
 subroutine ezfio_mkdir(path)
   implicit none
+  BEGIN_DOC
+! Creates a directory
+  END_DOC
   character*(*)                  :: path
   logical                        :: ezfio_exists
   if (libezfio_read_only) then
@@ -63,6 +69,9 @@ end subroutine
 
 subroutine libezfio_openz(filename,mode,err)
  implicit none
+  BEGIN_DOC
+! Opens a compressed file
+  END_DOC
  character*(*)                  :: filename, mode
  character*(1024)               :: fifo
  integer                        :: err
@@ -83,6 +92,9 @@ end
 
 subroutine libezfio_closez(filename,mode)
  implicit none
+  BEGIN_DOC
+! Closes a compressed file
+  END_DOC
  character*(*)                  :: filename, mode
  character*(1024)               :: fifo
  fifo = trim(filename)//'.'//PID_str
@@ -102,6 +114,9 @@ from f_types import format, t_short
 template = """
 subroutine ezfio_read_%(type_short)s(dir,fil,dat)
   implicit none
+  BEGIN_DOC
+! Reads a %(type_short)s
+  END_DOC
   character*(*), intent(in)      :: dir, fil
   %(type)s, intent(out)          :: dat
   character*(1024)               :: l_filename
@@ -117,6 +132,9 @@ end
 
 subroutine ezfio_write_%(type_short)s(dir,fil,dat)
   implicit none
+  BEGIN_DOC
+! Writes a %(type_short)s
+  END_DOC
   character*(*), intent(in)      :: dir, fil
   %(type)s, intent(in)           :: dat
   character*(1024)               :: l_filename(2)
@@ -133,6 +151,9 @@ end
 
 subroutine ezfio_read_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
   implicit none
+  BEGIN_DOC
+! Reads a %(type_short)s array
+  END_DOC
   character*(*), intent(in)      :: dir, fil
   integer                        :: rank
   integer                        :: dims(rank)
@@ -182,6 +203,9 @@ end
 
 subroutine ezfio_write_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
   implicit none
+  BEGIN_DOC
+! Writes a %(type_short)s array
+  END_DOC
   character*(*), intent(in)      :: dir, fil
   integer, intent(in)            :: rank
   integer, intent(in)            :: dims(rank)
@@ -337,6 +361,9 @@ END_PROVIDER
 
 subroutine ezfio_open_write_buffer(dir,fil,rank)
   implicit none
+  BEGIN_DOC
+! Opens a buffer for writing 
+  END_DOC
   character*(*),intent(in)       :: dir
   character*(*),intent(in)       :: fil
   integer,intent(in)             :: rank
@@ -367,6 +394,9 @@ end
 
 subroutine ezfio_open_read_buffer(dir,fil,rank)
   implicit none
+  BEGIN_DOC
+! Opens a buffer for reading
+  END_DOC
   character*(*),intent(in)       :: dir
   character*(*),intent(in)       :: fil
   integer,intent(in)             :: rank
@@ -399,6 +429,9 @@ end
 
 subroutine ezfio_close_read_buffer(dir,fil,rank)
   implicit none
+  BEGIN_DOC
+! Closes a buffer
+  END_DOC
   character*(*),intent(in)       :: dir
   character*(*),intent(in)       :: fil
   integer,intent(in)             :: rank
@@ -411,6 +444,9 @@ end
 
 subroutine ezfio_close_write_buffer(dir,fil,rank)
   implicit none
+  BEGIN_DOC
+! Closes a buffer
+  END_DOC
   character*(*),intent(in)       :: dir
   character*(*),intent(in)       :: fil
   integer,intent(in)             :: rank
@@ -423,6 +459,9 @@ end
 
 subroutine ezfio_read_buffer(indices,values,isize)
   implicit none
+  BEGIN_DOC
+! Reads a buffer
+  END_DOC
   
   integer, intent(inout)         :: isize
   integer, intent(out)           :: indices(*)
@@ -444,6 +483,9 @@ end
 
 subroutine ezfio_write_buffer(indices,values,isize)
   implicit none
+  BEGIN_DOC
+! Writes a buffer
+  END_DOC
   
   integer, intent(in)            :: isize
   integer, intent(in)            :: indices(*)
