@@ -31,10 +31,10 @@ default: make.config
 	$(MAKE) -C $$PWD/src 
 
 clean:
-	- bash -c "[[ -e lib/libezfio.a ]] && rm $$PWD/lib/*"
-	- bash -c "[[ -e Python/ezfio.py ]] && rm $$PWD/Python/*"
-	- bash -c "[[ -e Ocaml/ezfio.ml ]] && rm $$PWD/Ocaml/*"
-	- bash -c "[[ -e Bash/ezfio.sh ]] && rm $$PWD/Bash/*"
+	- bash -c "[[ -f lib/libezfio.a ]] && rm $$PWD/lib/*"
+	- bash -c "[[ -f Python/ezfio.py ]] && rm $$PWD/Python/*"
+	- bash -c "[[ -f Ocaml/ezfio.ml ]] && rm $$PWD/Ocaml/*"
+	- bash -c "[[ -f Bash/ezfio.sh ]] && rm $$PWD/Bash/*"
 	- $(MAKE) -C $$PWD/src veryclean
 
 archive: distclean

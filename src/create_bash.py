@@ -77,13 +77,13 @@ def run():
          'let has_%(group)s_%(var)s () = has_array "%(group)s" "%(var)s" ;;' %(d) ]
   
   
-  file = open('ezfio.ml','r')
+  file = open('ezfio.sh','r')
   template = file.read()
   file.close()
   template = template.replace("(*$HEAD*)",'\n'.join(head))
   template = template.replace("(*$TAIL*)",'\n'.join(tail))
 
-  file = open('../Ocaml/ezfio.ml','w')
+  file = open('../Bash/ezfio-gen.sh','w')
   file.write(template)
   file.close()
 
