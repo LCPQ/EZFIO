@@ -28,17 +28,14 @@ include make.config
 .PHONY: default clean distclean archive configure 
 
 default: make.config
-	- bash -c "[[ -e lib/libezfio.a ]] && rm $$PWD/lib/*"
-	@echo Compiling library && make -C $$PWD/src static
-	@echo Building Python module && make -C $$PWD/src python
+	$(MAKE) -C $$PWD/src 
 
 clean:
 	- bash -c "[[ -e lib/libezfio.a ]] && rm $$PWD/lib/*"
 	- bash -c "[[ -e Python/ezfio.py ]] && rm $$PWD/Python/*"
-	- make -C $$PWD/src veryclean
-
-distclean: clean
-	- rm -rf autom4te.cache config.status config.log make.config 
+	- bash -c "[[ -e Ocaml/ezfio.ml ]] && rm $$PWD/Ocaml/*"
+	- bash -c "[[ -e Bash/ezfio.sh ]] && rm $$PWD/Bash/*"
+	- $(MAKE) -C $$PWD/src veryclean
 
 archive: distclean
 	git archive --format=tar HEAD > EZFIO.$(VERSION).tar
@@ -47,9 +44,6 @@ archive: distclean
 	tar -zcvf EZFIO.$(VERSION).tar.gz EZFIO
 	rm -rf EZFIO
 
-configure: make.config.in configure.ac
-	autoconf 
-
 make.config: 
-	./configure --host=dummy
+	python configure.py
 

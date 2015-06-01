@@ -29,7 +29,7 @@ export
 
 include irpf90.make
 
-irpf90.make: $(wildcard *.irp.f) ../config/*
+irpf90.make: $(wildcard *.irp.f) ../config/* 
 	$(IRPF90)
 
 include ../version
