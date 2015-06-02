@@ -1,3 +1,4 @@
+#!/bin/bash
 #   EZFIO is an automatic generator of I/O libraries
 #   Copyright (C) 2009 Anthony SCEMAMA, CNRS
 #
@@ -22,54 +23,11 @@
 #   31062 Toulouse Cedex 4      
 #   scemama@irsamc.ups-tlse.fr
 
-ezfio = ezfio_obj()
-
-def main():
-  import pprint
-  import sys
-  import os
-
-  try:
-    EZFIO_FILE = os.environ["EZFIO_FILE"]
-  except KeyError:
-    print "EZFIO_FILE not defined"
-    return 1
-
-  ezfio.set_file(EZFIO_FILE)
-
-  command = '_'.join(sys.argv[1:]).lower()
-
-  try:
-    f = getattr(ezfio,command)
-  except AttributeError:
-    print "{0} not found".format(command)
-    return 1
-
-  if command.startswith('has'):
-      if f(): return 0
-      else  : return 1
-
-  elif command.startswith('get'):
-      result = f()
-      pprint.pprint( result, width=60, depth=3, indent=4 )
-      return 0
-
-  elif command.startswith('set'):
-      try:
-          data = eval(sys.stdin.read())
-      except:
-          print "Syntax Error"
-          return 1
-      f(data)
-      return 0
-
-  else:
-      return 1
-
+def run():
+  with open('../Python/ezfio.py','w') as out:
+    for f in "ezfio-head.py libezfio_groups-gen.py libezfio_util-gen.py ezfio-tail.py".split():
+      with open(f,'r') as inp:
+          out.write(inp.read())
 
 if __name__ == '__main__':
-  rc = main()
-  sys.exit(rc)
-
-
-
+  run()

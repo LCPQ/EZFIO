@@ -24,6 +24,9 @@
 
 subroutine ezfio_error(where,txt)
   implicit none
+  BEGIN_DOC
+! Prints an error message
+  END_DOC
   character*(*) :: where
   character*(*) :: txt
   character*(128) :: fname

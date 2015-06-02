@@ -23,6 +23,7 @@
 !   scemama@irsamc.ups-tlse.fr
 
 BEGIN_PROVIDER [ logical, libezfio_read_only ]
+ implicit none
   BEGIN_DOC  
 ! If true, the EZFIO file is read-only
   END_DOC
@@ -31,18 +32,29 @@ BEGIN_PROVIDER [ logical, libezfio_read_only ]
 END_PROVIDER
 
 subroutine ezfio_set_read_only(v)
+ implicit none
+ BEGIN_DOC
+! If true, sets the EZFIO file in a read-only state
+ END_DOC
  logical :: v
  libezfio_read_only = v
  TOUCH libezfio_read_only
 end subroutine ezfio_set_read_only
 
 subroutine ezfio_is_read_only(v)
+ implicit none
+ BEGIN_DOC
+! True if the EZFIO file is in a read-only state
+ END_DOC
   logical :: v
   v = libezfio_read_only
 end subroutine ezfio_is_read_only
 
 integer function char_to_version(v)
  implicit none
+ BEGIN_DOC
+! Computes the version number from a string
+ END_DOC
  character*(32), intent(in) :: v
  character*(32) :: vnew
  integer :: i, j, k
@@ -78,6 +90,9 @@ END_PROVIDER
 
 subroutine ezfio_get_filename(fname)
   implicit none
+ BEGIN_DOC
+! Returns the name of the EZFIO file
+ END_DOC
   character*(*) :: fname
   fname = libezfio_filename
 end subroutine
@@ -107,6 +122,9 @@ END_PROVIDER
 
 logical function exists(path)
   implicit none
+ BEGIN_DOC
+! Returns True if the path exists
+ END_DOC
   character*(*) :: path
   character*(32) :: V
   inquire(file=trim(path)//'/.version',exist=exists)
@@ -124,6 +142,9 @@ end function
 
 subroutine ezfio_set_file(filename_in)
   implicit none
+ BEGIN_DOC
+! Sets the file for I/O
+ END_DOC
 
   character*(*) :: filename_in
 
@@ -153,6 +174,9 @@ end subroutine
 
 subroutine ezfio_finish()
  implicit none
+ BEGIN_DOC
+! Close all open buffers
+ END_DOC
  close(libezfio_iunit)
  BEGIN_SHELL [ /usr/bin/python ]
 import os

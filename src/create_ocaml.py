@@ -87,3 +87,7 @@ def run():
   file.write(template)
   file.close()
 
+
+if __name__ == '__main__':
+  run()
+

@@ -25,20 +25,17 @@
 include version
 include make.config
 
-.PHONY: default clean distclean archive configure 
+.PHONY: default clean veryclean archive configure 
 
 default: make.config
-	- bash -c "[[ -e lib/libezfio.a ]] && rm $$PWD/lib/*"
-	@echo Compiling library && make -C $$PWD/src static
-	@echo Building Python module && make -C $$PWD/src python
+	$(MAKE) -C $$PWD/src 
 
 clean:
-	- bash -c "[[ -e lib/libezfio.a ]] && rm $$PWD/lib/*"
-	- bash -c "[[ -e Python/ezfio.py ]] && rm $$PWD/Python/*"
-	- make -C $$PWD/src veryclean
-
-distclean: clean
-	- rm -rf autom4te.cache config.status config.log make.config 
+	- bash -c "[[ -f lib/libezfio.a ]] && rm $$PWD/lib/*"
+	- bash -c "[[ -f Python/ezfio.py ]] && rm $$PWD/Python/*"
+	- bash -c "[[ -f Ocaml/ezfio.ml ]] && rm $$PWD/Ocaml/*"
+	- bash -c "[[ -f Bash/ezfio.sh ]] && rm $$PWD/Bash/*"
+	- $(MAKE) -C $$PWD/src veryclean
 
 archive: distclean
 	git archive --format=tar HEAD > EZFIO.$(VERSION).tar
@@ -47,9 +44,12 @@ archive: distclean
 	tar -zcvf EZFIO.$(VERSION).tar.gz EZFIO
 	rm -rf EZFIO
 
-configure: make.config.in configure.ac
-	autoconf 
-
 make.config: 
-	./configure --host=dummy
+	python configure.py
 
+veryclean:
+	$(MAKE) -C src veryclean
+	rm -f make.config
+	rm -f Ocaml/ezfio.ml
+	rm -f Python/ezfio.py
+	rm -f lib/{libezfio.a,libezfio_irp.a}

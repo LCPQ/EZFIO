@@ -22,38 +22,39 @@
 #   31062 Toulouse Cedex 4      
 #   scemama@irsamc.ups-tlse.fr
 
-DEFAULT_TARGET: python
+DEFAULT_TARGET: all
 
-../make.config:
-	make -C .. make.config
 include ../make.config
+export
 
 include irpf90.make
 
-irpf90.make: $(wildcard *.irp.f) ../config/*
+irpf90.make: $(wildcard *.irp.f) ../config/* 
 	$(IRPF90)
 
 include ../version
 
-.PHONY: python static
+.PHONY: static all
 
-static: ../lib/libezfio_irp.a ../lib/libezfio.a
+all: static ../Python/ezfio.py ../Ocaml/ezfio.ml
 
-../lib/libezfio.a: $(OBJ1)
-	- bash -c "[[ -e ../libezfio.a ]] && rm ../lib/libezfio.a"
+static: ../lib/libezfio.a ../lib/libezfio_irp.a
+
+../lib/libezfio.a: IRPF90_temp/irpf90.a
+	rm -f ../lib/libezfio.a
 	$(AR) cru ../lib/libezfio.a $(OBJ1)
 	$(RANLIB) ../lib/libezfio.a
 
 ../lib/libezfio_irp.a: ../lib/libezfio.a
+	rm -f ../lib/libezfio_irp.a
 	cp ../lib/libezfio.a ../lib/libezfio_irp.a
 	$(AR) dv ../lib/libezfio_irp.a irp_stack.irp.o
 	$(RANLIB) ../lib/libezfio_irp.a
 
-test: static
-	ifort -o $@ IRPF90_temp/run.irp.F90 -L../lib/ -lezfio
+../Python/ezfio.py:
+	python create_python.py
 
-python: static
-	cat ezfio-head.py libezfio_groups-gen.py libezfio_util-gen.py ezfio-tail.py > ../Python/ezfio.py
+../Ocaml/ezfio.ml:
+	python create_ocaml.py
 
-ezfio.py: python
 

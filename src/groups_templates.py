@@ -49,6 +49,7 @@ END_PROVIDER
 
 attributes = """
 BEGIN_PROVIDER [ %(type)s, %(group)s_%(var)s ]
+  implicit none
   BEGIN_DOC
 ! %(var)s attribute of group %(group)s
   END_DOC
@@ -58,23 +59,39 @@ BEGIN_PROVIDER [ %(type)s, %(group)s_%(var)s ]
 END_PROVIDER
 
 subroutine ezfio_set_%(group)s_%(var)s(%(var)s)
+  implicit none
+  BEGIN_DOC
+! Sets the %(group)s/%(var)s attribute
+  END_DOC
   %(type_set)s :: %(var)s
   call ezfio_write_%(type_short)s(path_%(group)s,'%(var)s',%(var)s)
   FREE %(group)s_%(var)s
 end subroutine
 
 subroutine ezfio_get_%(group)s_%(var)s(%(var)s)
+  implicit none
+  BEGIN_DOC
+! Gets the %(group)s/%(var)s attribute
+  END_DOC
   %(type)s :: %(var)s
   %(var)s = %(group)s_%(var)s
 end subroutine
 
 subroutine ezfio_has_%(group)s_%(var)s(result)
+  implicit none
+  BEGIN_DOC
+! True if the %(group)s/%(var)s attribute exists in the EZFIO directory
+  END_DOC
   logical :: result
   inquire(file=trim(path_%(group)s)//'/%(var)s',exist=result)
 end subroutine
 
 subroutine ezfio_free_%(group)s_%(var)s()
- FREE %(group)s_%(var)s
+  implicit none
+  BEGIN_DOC
+! Frees the memory for %(group)s/%(var)s
+  END_DOC
+  FREE %(group)s_%(var)s
 end
 """
 
@@ -95,6 +112,10 @@ BEGIN_PROVIDER [ %(type)s, %(group)s_%(var)s, %(dims)s ]
 END_PROVIDER
 
 subroutine ezfio_set_%(group)s_%(var)s(%(var)s)
+  implicit none
+  BEGIN_DOC
+! Sets the %(group)s/%(var)s attribute
+  END_DOC
   %(type_set)s :: %(var)s (*)
   integer :: rank, dim_max, i
   integer :: dims(10)
@@ -107,18 +128,30 @@ subroutine ezfio_set_%(group)s_%(var)s(%(var)s)
 end subroutine
 
 subroutine ezfio_get_%(group)s_%(var)s(%(var)s)
+  implicit none
+  BEGIN_DOC
+! Gets the %(group)s/%(var)s attribute
+  END_DOC
   %(type)s, intent(out) :: %(var)s (*)
   character*(1024) :: message
   %(var)s(1: %(dim_max)s ) = reshape ( %(group)s_%(var)s, (/ %(dim_max)s /) )
 end subroutine
 
 subroutine ezfio_has_%(group)s_%(var)s(result)
+  implicit none
+  BEGIN_DOC
+! True if the %(group)s/%(var)s attribute exists in the EZFIO directory
+  END_DOC
   logical :: result
   inquire(file=trim(path_%(group)s)//'/%(var)s.gz',exist=result)
 end subroutine
 
 subroutine ezfio_free_%(group)s_%(var)s()
- FREE %(group)s_%(var)s
+  implicit none
+  BEGIN_DOC
+! Frees the memory for %(group)s/%(var)s
+  END_DOC
+  FREE %(group)s_%(var)s
 end
 """
 
@@ -131,38 +164,70 @@ BEGIN_PROVIDER [ %(type)s, %(group)s_%(var)s ]
 END_PROVIDER
 
 subroutine ezfio_get_%(group)s_%(var)s(%(var)s)
- %(type)s, intent(out) :: %(var)s
- %(var)s = %(group)s_%(var)s
+  implicit none
+  BEGIN_DOC
+! Gets the %(group)s/%(var)s attribute
+  END_DOC
+  %(type)s, intent(out) :: %(var)s
+  %(var)s = %(group)s_%(var)s
 end
 
 subroutine ezfio_free_%(group)s_%(var)s()
- FREE %(group)s_%(var)s
+  implicit none
+  BEGIN_DOC
+! Frees the memory for %(group)s/%(var)s
+  END_DOC
+  FREE %(group)s_%(var)s
 end
 """
 
 buffered="""
 subroutine ezfio_open_read_%(group)s_%(var)s()
+ implicit none
+ BEGIN_DOC
+! Opens the read buffer for %(group)s/%(var)s
+ END_DOC
  call ezfio_open_read_buffer(path_%(group)s,'%(var)s',%(dims)s)
 end
 
 subroutine ezfio_open_write_%(group)s_%(var)s()
+ implicit none
+ BEGIN_DOC
+! Opens the write buffer for %(group)s/%(var)s
+ END_DOC
  call ezfio_open_write_buffer(path_%(group)s,'%(var)s',%(dims)s)
 end
 
 subroutine ezfio_close_read_%(group)s_%(var)s()
+ implicit none
+ BEGIN_DOC
+! Closes the read buffer for %(group)s/%(var)s
+ END_DOC
  call ezfio_close_read_buffer(path_%(group)s,'%(var)s')
 end
 
 subroutine ezfio_close_write_%(group)s_%(var)s()
+ implicit none
+ BEGIN_DOC
+! Closes the write buffer for %(group)s/%(var)s
+ END_DOC
  call ezfio_close_write_buffer(path_%(group)s,'%(var)s')
 end
 
 subroutine ezfio_has_%(group)s_%(var)s(result)
+  implicit none
+  BEGIN_DOC
+!  If the %(group)s_%(var)s, returns True
+  END_DOC
   logical :: result
   inquire(file=trim(path_%(group)s)//'/%(var)s.gz',exist=result)
 end subroutine
 
 subroutine ezfio_free_%(group)s_%(var)s()
+  implicit none
+  BEGIN_DOC
+! Frees the memory for %(group)s/%(var)s
+  END_DOC
  FREE %(group)s_%(var)s
 end
 """
