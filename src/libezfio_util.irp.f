@@ -355,12 +355,6 @@ print >>file_py, """
 
 file_py.close()
 
-import create_ocaml
-create_ocaml.run()
-
-import create_python
-create_python.run()
-
 END_SHELL
 
 BEGIN_PROVIDER [ integer, libezfio_buffer_rank ]

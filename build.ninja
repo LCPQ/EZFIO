@@ -1,18 +1,24 @@
 include version
 
 rule build_generated_ninja
-   command = python configure.py
+   command = python $in ninja
    description = Creating generated.ninja
    generator = 1
 
 rule run_ninja
-   command = ninja -f $in
+   command = bash -c 'source make.config ; bash -c "$$NINJA -f $in"'
+   description = Building Fortran library
 
 rule build_archive
    command = git archive --format=tar HEAD > EZFIO.${version}.tar && mkdir -p EZFIO && cd EZFIO && tar -xvf ../EZFIO.${version}.tar && cd .. && rm EZFIO.${version}.tar && tar -zcvf EZFIO.${version}.tar.gz EZFIO && rm -rf EZFIO
    description = Building archive
 
-build make.config generated.ninja: build_generated_ninja | configure.py
+rule clean_all
+   command = bash -c 'source make.config ; bash -c "$$NINJA -f $in -t clean ; $$NINJA -t clean" ; rm -rf src/IRPF90_{temp,man} src/*.pyc'
+   description = Cleaning directory
+
+
+build make.config generated.ninja: build_generated_ninja configure.py
 
 build all: run_ninja generated.ninja
 default all
@@ -20,3 +26,5 @@ default all
 build EZFIO.${VERSION}.tar.gz: build_archive 
 
 build archive: phony EZFIO.${VERSION}.tar.gz
+
+build clean: clean_all generated.ninja

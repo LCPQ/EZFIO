@@ -36,7 +36,7 @@ include ../version
 
 .PHONY: static all
 
-all: static 
+all: static ../Python/ezfio.py ../Ocaml/ezfio.ml
 
 static: ../lib/libezfio.a ../lib/libezfio_irp.a
 
@@ -51,6 +51,10 @@ static: ../lib/libezfio.a ../lib/libezfio_irp.a
 	$(AR) dv ../lib/libezfio_irp.a irp_stack.irp.o
 	$(RANLIB) ../lib/libezfio_irp.a
 
-test: static
-	$(FC) -o $@ IRPF90_temp/run.irp.F90 -L../lib/ -lezfio
+../Python/ezfio.py:
+	python create_python.py
+
+../Ocaml/ezfio.ml:
+	python create_ocaml.py
+
 

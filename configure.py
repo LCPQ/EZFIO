@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+import os,sys
 
 with open("version",'r') as f:
     version = f.read().strip().rsplit('=')[1]
@@ -19,13 +19,18 @@ d_default = {
 
 def create_make_config():
 
+    if sys.argv[-1] == 'ninja':
+        fmt = '{0}="{1}"\n'
+    else:
+        fmt = '{0}={1}\n'
+
     with open("make.config",'w') as out:
         for var,default in d_default.iteritems():
             try:
                 cur = os.environ[var] 
             except KeyError:
                 cur = default
-            out.write('{0}={1}\n'.format(var,cur))
+            out.write(fmt.format(var,cur))
 
 
 def read_make_config():
@@ -53,10 +58,7 @@ def create_build_ninja():
         """
         IRPF90_temp/build.ninja irpf90.make irpf90_entities
         tags libezfio_groups-gen.py libezfio_util-gen.py
-        """.split() ] + \
-        """
-        Python/ezfio.py Ocaml/ezfio.ml 
-        """.split()
+        """.split() ] 
 
     d["irpf90_sources"] = [ "src/{0}".format(x) for x in
         """
@@ -64,7 +66,7 @@ def create_build_ninja():
         libezfio_file.irp.f create_python.py 
         libezfio_groups.irp.f ezfio-head.py  
         libezfio_util.irp.f ezfio-tail.py read_config.py 
-        f_types.py test.py create_bash.py groups.py 
+        f_types.py test.py groups.py 
         """.split() ] + [ "make.config" ]
 
     d["irpf90_files"] = ' '.join(d["irpf90_files"])
@@ -96,6 +98,13 @@ rule build_libezfio_irp_a
    command = cp lib/libezfio.a lib/libezfio_irp.a ; {AR} dv lib/libezfio_irp.a irp_stack.irp.o > /dev/null ; {RANLIB} lib/libezfio_irp.a
    description = Building libezfio_irp.a
 
+rule build_python
+   command = cd src ; python create_python.py
+   description = Building Python module
+
+rule build_ocaml
+   command = cd src ; python create_ocaml.py
+   description = Building Ocaml module
 
 
 build make.config: build_make_config | configure.py
@@ -108,6 +117,9 @@ build lib/libezfio.a: build_libezfio_a | src/IRPF90_temp/irpf90.a
 
 build lib/libezfio_irp.a: build_libezfio_irp_a | lib/libezfio.a
 
+build Python/ezfio.py: build_python | lib/libezfio.a
+
+build Ocaml/ezfio.ml: build_ocaml | lib/libezfio.a
 
 """
 

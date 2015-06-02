@@ -29,3 +29,5 @@ def run():
       with open(f,'r') as inp:
           out.write(inp.read())
 
+if __name__ == '__main__':
+  run()
