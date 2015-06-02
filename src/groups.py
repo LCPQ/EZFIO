@@ -144,10 +144,3 @@ for group in groups.keys():
       print >>file_py, attributes_arr_py%d
 
 file_py.close()
-
-import create_ocaml
-create_ocaml.run()
-
-import create_python
-create_python.run()
-

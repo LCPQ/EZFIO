@@ -19,8 +19,8 @@ The following packages are needed:
 
 * `IRPF90 <http://irpf90.ups-tlse.fr>`_
 * `Python <http://www.python.org>`_
+* `GNU make <http://www.python.org>`_ or `Ninja <http://github.com/martine/ninja>`_
 
-The latest version can be downloaded `here <http://qmcchem.ups-tlse.fr/files/scemama/EZFIO.latest.tar.gz>`_.
 
 Tutorial
 ========
@@ -39,15 +39,9 @@ Create an empty directory for your project and unpack the ``EZFIO.tar.gz`` file 
   $ ls
   EZFIO/
 
-Get into the ``EZFIO`` directory and set up your compiling options: 
-
-.. code-block:: bash
-
-  $ cp make.config.example make.config
-  $ vim make.config
-
-Now, configure the library to produce the desired suboutines. Get into
-the ``config`` directory and create a new file ``test.config``
+Get into the ``EZFIO`` directory and configure the library to produce the
+desired suboutines. Get into the ``config`` directory and create a new file
+``test.config``
 containing::
 
   molecule
@@ -79,19 +73,27 @@ simple operation is written after an = symbol (as for ``mass`` in the
 Once your configuration file is ready, run ``make`` and your library
 will be built.
 
+
 Building the library
 --------------------
 
-Now, go back to the EZFIO root directory, and run:
+Now, go back to the EZFIO root directory. To build with GNU make, run:
 
 .. code-block:: bash
 
   $ make
 
-The ``lib`` directory now contains the shared library
-(``libezfio.so``), the static library (``libezfio.a``), and a static
+Or you can use Ninja to build the library:
+
+.. code-block:: bash
+
+  $ ninja
+
+
+The ``lib`` directory now contains the static library ``libezfio.a``, and a static
 library for use under the IRPF90 environment (``libezfio_irp.a``).
-The ``Python`` directory contains the Python module for the use of the library in Python.
+The ``Python``, ``Ocaml`` and ``Bash`` directories contain the binding for these languages.
+
 
 Using the produced library
 --------------------------
@@ -220,7 +222,7 @@ Create a file named ``create_input.py`` with:
   ezfio.molecule_mass = mass
   ezfio.molecule_coord = coord
   
-  # Check that the total charge and mass is correct:
+  # Check that the total mass is correct:
   print ezfio.properties_mass   # Should give 18.
 
 Execute the script:
@@ -236,10 +238,10 @@ The printed mass is correct, and a new directory (``Water``) was created with ou
 
   $ ls Water/*
   Water/ezfio:
-  creation
+  creation  library  user
 
   Water/molecule:
-  charge.gz  coord.gz  mass.gz  num_atoms
+  coord.gz  mass.gz  num_atoms
 
 In Fortran
 ----------
@@ -307,6 +309,20 @@ the EZFIO file.
   
   end
 
+Compile the fortran program and link it the ``libezfio.a`` library, and run the
+executable.
+
+.. code-block:: bash
+
+  $ gfortran test.f90 EZFIO/lib/libezfio.a -o test.x
+  $ ./test.x
+  Data in the EZFIO file:
+     16.0000000       0.00000000      0.222396001       0.00000000    
+     1.00000000       1.43649399     -0.889660001       0.00000000    
+     1.00000000      -1.43649399     -0.889660001       0.00000000    
+
+
+
 A new directory (``properties``) was created with the center_of_mass
 file:
 
@@ -317,25 +333,64 @@ file:
   creation
 
   Water/molecule:
-  charge.gz  coord.gz  mass.gz  num_atoms
+  coord.gz  mass.gz  num_atoms
 
   Water/properties:
   center_of_mass.gz
 
 
-Compile and run the program using:
+Using Bash
+----------
+
+To use EZFIO in Bash, you need to source the ``ezfio.sh`` file:
 
 .. code-block:: bash
 
-  $ $FC -o test test.F90 EZFIO/lib/libezfio.a
-  $ ./test
+  $ source EZFIO/Bash/ezfio.sh
 
-where ``$FC`` is your fortran compiler, and ``test.F90`` is the file
-containing the test example.  If you don't have the EZFIO static
-library, you can use the shared library as:
+The usage of the ``ezfio`` bash command is::
+
+  ezfio set_file    EZFIO_DIRECTORY
+  ezfio unset_file 
+
+  ezfio has         DIRECTORY   ITEM
+  ezfio get         DIRECTORY   ITEM
+  ezfio set         DIRECTORY   ITEM  VALUE  : Scalar values
+  ezfio set         DIRECTORY   ITEM         : Array values read from stdin
+
+  ezfio set_verbose
+  ezfio unset_verbose
+
+
+Here is the same script as the Python script, but using Bash (``create_input.sh``):
 
 .. code-block:: bash
 
-  $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PWD/EZFIO/lib
-  $ $FC -o test -L./EZFIO/lib -lezfio
+  #!/bin/bash
+  
+  source EZFIO/Bash/ezfio.sh
+  
+  # Select the EZFIO file
+  ezfio set_file Water
+  
+  # Set the number of atoms
+  ezfio set molecule num_atoms 3
+  
+  # Create the mass array
+  mass="[16.0, 1.0, 1.0]"
+  echo $mass | ezfio set molecule mass
+  
+  # Create the coordinates
+  cat << EOF | ezfio set molecule coord
+  [
+  [ 0.000000,  0.222396, 0.0],
+  [ 1.436494, -0.889660, 0.0],
+  [-1.436494, -0.889660, 0.0]
+  ]
+  EOF
+  
+  # Check that the total mass is correct:
+  ezfio get properties mass      # Should print 18.
+
+
 

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+EZFIO_ROOT=$( cd $(dirname "${BASH_SOURCE}")/..  ; pwd -P )
+
+function _ezfio_py()
+{
+  python ${EZFIO_ROOT}/Python/ezfio.py $@
+}
+
+
 function _ezfio_usage()
 {
       echo "
@@ -78,8 +86,7 @@ function _ezfio_set_file()
 
   if [[ ! -d $1 ]]
   then
-    echo "No such directory: $1"
-    return 1
+    mkdir -p $1 || return 1
   fi
   export EZFIO_FILE=$1
   _ezfio_info "Set file ${EZFIO_FILE}"
@@ -109,18 +116,7 @@ function _ezfio_has()
       return 0
   fi
 
-  if [[ -f  ${EZFIO_FILE}/${1,,}/${2,,} ]]
-  then
-      _ezfio_info "EZFIO has $1 / $2"
-      return 0
-  elif [[ -f  ${EZFIO_FILE}/${1,,}/${2,,}.gz ]]
-  then
-      _ezfio_info "EZFIO has $1 / $2"
-      return 0
-  else
-      _ezfio_info "EZFIO doesn't have $1 / $2"
-      return 1
-  fi
+  _ezfio_py has $@ && return 0 || return 1
 }
 
 function _ezfio_get()
@@ -129,29 +125,15 @@ function _ezfio_get()
 
   if [[ -z $1 ]] 
   then
-    ls ${EZFIO_FILE}
-    return 0
+    ls ${EZFIO_FILE} && return 0 || return 1
   fi
-
-  _ezfio_has $@ || return 1
 
   if [[ -z $2 ]]
   then
-      ls ${EZFIO_FILE}/${1,,}
-      return 0
+      ls ${EZFIO_FILE}/${1,,} && return 0 || return 1
   fi
 
-  if [[ -f ${EZFIO_FILE}/${1,,}/${2,,} ]]
-  then
-    cat ${EZFIO_FILE}/${1,,}/${2,,}
-  elif [[ -f ${EZFIO_FILE}/${1,,}/${2,,}.gz ]]
-  then
-    zcat ${EZFIO_FILE}/${1,,}/${2,,}.gz
-  else
-    _ezfio_info "EZFIO doesn't have $1 / $2"
-    return 1
-  fi
-  return 0
+  _ezfio_py get $@ && return 0 || return 1
 }
 
 function _ezfio_set()
@@ -160,15 +142,11 @@ function _ezfio_set()
   _require_first_argument  $@ || return 1
   _require_second_argument $@ || return 2
 
-  if [[ ! -d ${EZFIO_FILE}/${1,,} ]]
+  if [[ -z $3 ]]
   then
-    mkdir -p ${EZFIO_FILE}/${1,,}
-  fi
-  if [[ ! -z "$3" ]]
-  then
-    echo "$3" > ${EZFIO_FILE}/${1,,}/${2,,}
+    _ezfio_py set $@ || return 1
   else
-    zcat > ${EZFIO_FILE}/${1,,}/${2,,}.gz
+    echo $3 | _ezfio_py set $1 $2 || return 1
   fi
   return 0
 }
@@ -234,39 +212,51 @@ _Complete()
   prev="${COMP_WORDS[COMP_CWORD-1]}"
   prev2="${COMP_WORDS[COMP_CWORD-2]}"
 
-  case "${prev2}" in
-    set|has|get)
-      COMPREPLY=( $(compgen -W "$(cd ${EZFIO_FILE}/${prev} ; ls | sed 's/\.gz//' )" -- $cur ) )
-      return 0
-      ;;
-  esac
+  if [[ -n ${EZFIO_FILE} && -d ${EZFIO_FILE} ]]
+  then
 
-  case "${prev}" in
-    unset_file|set_verbose|unset_verbose)
-      COMPREPLY=()
-      return 0
-      ;;
-    set_file)
-      COMPREPLY=( $(compgen -W "$(\ls -d */ | sed 's|/||g')" -- ${cur} ) )
-      return 0
-      ;;
-    set|has|get)
-      COMPREPLY=( $(compgen -W "$(cd ${EZFIO_FILE} ; \ls -d */ | sed 's|/||g')" -- $cur ) )
-      return 0
-      ;;
-    *)
-      if [[ -z ${EZFIO_FILE} ]]
-      then
-        COMPREPLY=( $(compgen -W 'set_file \
-                                  set_verbose unset_verbose -h' -- $cur ) )
-      else
+    case "${prev2}" in
+      set|has|get)
+        COMPREPLY=( $(compgen -W "$(cd ${EZFIO_FILE}/${prev} ; ls | sed 's/\.gz//' )" -- $cur ) )
+        return 0
+        ;;
+    esac
+
+    case "${prev}" in
+      unset_file|set_verbose|unset_verbose)
+        COMPREPLY=()
+        return 0
+        ;;
+      set|has|get)
+        COMPREPLY=( $(compgen -W "$(cd ${EZFIO_FILE} ; \ls -d */ | sed 's|/||g')" -- $cur ) )
+        return 0
+        ;;
+      *)
         COMPREPLY=( $(compgen -W 'has get set unset_file \
                                   set_verbose unset_verbose -h' -- $cur ) )
-      fi
-      return 0
-      ;;
-  esac
+        return 0
+        ;;
+    esac
 
+  else
+
+    case "${prev}" in
+      set_verbose|unset_verbose)
+        COMPREPLY=()
+        return 0
+        ;;
+      set_file)
+        COMPREPLY=( $(compgen -W "$(\ls -d */ | sed 's|/||g')" -- ${cur} ) )
+        return 0
+        ;;
+      *)
+        COMPREPLY=( $(compgen -W 'set_file \
+                                  set_verbose unset_verbose -h' -- $cur ) )
+        return 0
+        ;;
+    esac
+
+  fi
 }
 
 complete -F _Complete ezfio

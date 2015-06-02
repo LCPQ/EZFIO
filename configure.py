@@ -52,18 +52,18 @@ def create_build_ninja():
     d["irpf90_files"] = [ "src/{0}".format(x) for x in
         """
         IRPF90_temp/build.ninja irpf90.make irpf90_entities
-        tags
+        tags libezfio_groups-gen.py libezfio_util-gen.py
         """.split() ] + \
         """
-        Python/ezfio.py Ocaml/ezfio.ml Bash/ezfio.sh
+        Python/ezfio.py Ocaml/ezfio.ml 
         """.split()
 
     d["irpf90_sources"] = [ "src/{0}".format(x) for x in
         """
         libezfio_error.irp.f create_ocaml.py groups_templates.py
-        libezfio_file.irp.f create_python.py libezfio_groups-gen.py
-        libezfio_groups.irp.f ezfio-head.py libezfio_util-gen.py
-        libezfio_util.irp.f ezfio-tail.py read_config.py run.irp.f
+        libezfio_file.irp.f create_python.py 
+        libezfio_groups.irp.f ezfio-head.py  
+        libezfio_util.irp.f ezfio-tail.py read_config.py 
         f_types.py test.py create_bash.py groups.py 
         """.split() ] + [ "make.config" ]
 
@@ -93,7 +93,7 @@ rule build_libezfio_a
    description = Building libezfio.a
 
 rule build_libezfio_irp_a
-   command = cp lib/libezfio.a lib/libezfio_irp.a ; {AR} dv lib/libezfio_irp.a irp_stack.irp.o ; {RANLIB} lib/libezfio_irp.a
+   command = cp lib/libezfio.a lib/libezfio_irp.a ; {AR} dv lib/libezfio_irp.a irp_stack.irp.o > /dev/null ; {RANLIB} lib/libezfio_irp.a
    description = Building libezfio_irp.a
 
 
