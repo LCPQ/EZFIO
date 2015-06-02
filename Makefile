@@ -25,7 +25,7 @@
 include version
 include make.config
 
-.PHONY: default clean distclean archive configure 
+.PHONY: default clean veryclean archive configure 
 
 default: make.config
 	$(MAKE) -C $$PWD/src 
@@ -47,3 +47,9 @@ archive: distclean
 make.config: 
 	python configure.py
 
+veryclean:
+	$(MAKE) -C src veryclean
+	rm -f make.config
+	rm -f Ocaml/ezfio.ml
+	rm -f Python/ezfio.py
+	rm -f lib/{libezfio.a,libezfio_irp.a}
