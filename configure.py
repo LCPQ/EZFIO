@@ -14,7 +14,7 @@ d_default = {
   "AR" : 'ar',
   "NINJA" : 'ninja',
   "CONFIG_FILES" : 
-     ' '.join([ x for x in os.listdir('config') if x != '.empty'])
+     ' '.join([ os.path.join("config",x) for x in os.listdir('config') if x != '.empty'])
 }
 
 def create_make_config():
@@ -39,6 +39,8 @@ def read_make_config():
         for line in f.readlines():
           try:
             key, value = line.strip().split('=',1)
+            if value.startswith('"') and value.endswith('"'):
+                value = value[1:-1]
           except:
             print "Error in make.config:"
             print line
@@ -107,9 +109,9 @@ rule build_ocaml
    description = Building Ocaml module
 
 
-build make.config: build_make_config | configure.py
+build make.config: build_make_config | configure.py 
 
-build {irpf90_files}: compile_irpf90 | {irpf90_sources} 
+build {irpf90_files}: compile_irpf90 | {irpf90_sources} {CONFIG_FILES}
 
 build src/IRPF90_temp/irpf90.a: build_irpf90_a | {irpf90_files}
 
