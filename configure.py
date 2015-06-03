@@ -38,7 +38,7 @@ def read_make_config():
     with open("make.config",'r') as f:
         for line in f.readlines():
           try:
-            key, value = line.strip().split('=')
+            key, value = line.strip().split('=',1)
           except:
             print "Error in make.config:"
             print line
