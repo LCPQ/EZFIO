@@ -6,7 +6,7 @@ rule build_generated_ninja
    generator = 1
 
 rule run_ninja
-   command = bash -c 'source make.config ; bash -c "$$NINJA -f $in"'
+   command = bash -c 'source .make.config.sh ; exec bash -c "$$NINJA -f $in"'
    description = Building Fortran library
 
 rule build_archive
@@ -14,11 +14,11 @@ rule build_archive
    description = Building archive
 
 rule clean_all
-   command = bash -c 'source make.config ; bash -c "$$NINJA -f $in -t clean ; $$NINJA -t clean" ; rm -rf src/IRPF90_{temp,man} src/*.pyc'
+   command = bash -c 'source .make.config.sh ; bash -c "$$NINJA -f $in -t clean ; $$NINJA -t clean" ; rm -rf src/IRPF90_{temp,man} src/*.pyc'
    description = Cleaning directory
 
 
-build make.config generated.ninja: build_generated_ninja configure.py
+build make.config .make.config.sh generated.ninja: build_generated_ninja configure.py
 
 build all: run_ninja generated.ninja
 default all

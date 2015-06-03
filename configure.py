@@ -19,18 +19,16 @@ d_default = {
 
 def create_make_config():
 
-    if sys.argv[-1] == 'ninja':
-        fmt = '{0}="{1}"\n'
-    else:
-        fmt = '{0}={1}\n'
-
-    with open("make.config",'w') as out:
-        for var,default in d_default.iteritems():
-            try:
-                cur = os.environ[var] 
-            except KeyError:
-                cur = default
-            out.write(fmt.format(var,cur))
+    fmt = { "make.config" :'{0}={1}\n' , 
+            ".make.config.sh": '{0}="{1}"\n' }
+    for filename in fmt:
+        with open(filename,'w') as out:
+            for var,default in d_default.iteritems():
+                try:
+                    cur = os.environ[var] 
+                except KeyError:
+                    cur = default
+                out.write(fmt[filename].format(var,cur))
 
 
 def read_make_config():
@@ -39,8 +37,6 @@ def read_make_config():
         for line in f.readlines():
           try:
             key, value = line.strip().split('=',1)
-            if value.startswith('"') and value.endswith('"'):
-                value = value[1:-1]
           except:
             print "Error in make.config:"
             print line
@@ -51,8 +47,7 @@ def read_make_config():
 
 def create_build_ninja():
     
-    if "make.config" not in os.listdir(os.getcwd()):
-        create_make_config()
+    create_make_config()
 
     d = read_make_config()
 
