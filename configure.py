@@ -53,7 +53,7 @@ def create_build_ninja():
 
     d["irpf90_files"] = [ "src/{0}".format(x) for x in
         """
-        IRPF90_temp/build.ninja irpf90.make irpf90_entities
+        build.ninja irpf90.make irpf90_entities
         tags libezfio_groups-gen.py libezfio_util-gen.py
         """.split() ] 
 
@@ -84,7 +84,7 @@ rule compile_irpf90
    description = Compiling IRPF90
 
 rule build_irpf90_a
-   command = {NINJA} -C src/IRPF90_temp
+   command = cd src ; {NINJA}
    description = Compiling Fortran files
 
 rule build_libezfio_a
