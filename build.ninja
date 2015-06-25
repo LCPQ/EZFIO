@@ -1,16 +1,16 @@
 include version
 
 rule build_generated_ninja
-   command = python $in ninja
+   command = python configure.py
    description = Creating generated.ninja
-   generator = 1
 
 rule run_ninja
-   command = bash -c 'source .make.config.sh ; exec bash -c "$$NINJA -f $in"'
+   command = bash -c 'source .make.config.sh ; $$NINJA -f $in'
    description = Building Fortran library
+   pool = console
 
 rule build_archive
-   command = git archive --format=tar HEAD > EZFIO.${version}.tar && mkdir -p EZFIO && cd EZFIO && tar -xvf ../EZFIO.${version}.tar && cd .. && rm EZFIO.${version}.tar && tar -zcvf EZFIO.${version}.tar.gz EZFIO && rm -rf EZFIO
+   command = git archive --format=tar HEAD > EZFIO.${VERSION}.tar && mkdir -p EZFIO && cd EZFIO && tar -xvf ../EZFIO.${VERSION}.tar && cd .. && rm EZFIO.${VERSION}.tar && tar -zcvf EZFIO.${VERSION}.tar.gz EZFIO && rm -rf EZFIO
    description = Building archive
 
 rule clean_all
@@ -18,9 +18,10 @@ rule clean_all
    description = Cleaning directory
 
 
-build make.config .make.config.sh generated.ninja: build_generated_ninja configure.py
+build make.config .make.config.sh generated.ninja impossible_target: build_generated_ninja
 
 build all: run_ninja generated.ninja
+
 default all
 
 build EZFIO.${VERSION}.tar.gz: build_archive 
