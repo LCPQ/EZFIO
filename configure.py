@@ -2,6 +2,20 @@
 
 import os,sys
 
+def write_if_different(filename,s):
+  try:
+    with open(filename, "r") as f:
+        ref = f.read()
+  except:
+    ref = ""
+
+  if ref == s:
+      return
+  else:
+      with open(filename, "w") as f:
+        f.write(s)
+    
+  
 with open("version",'r') as f:
     version = f.read().strip().rsplit('=')[1]
 
@@ -13,22 +27,37 @@ d_default = {
   "RANLIB" : 'ranlib',
   "AR" : 'ar',
   "NINJA" : 'ninja',
-  "CONFIG_FILES" : 
-     ' '.join([ os.path.join("config",x) for x in os.listdir('config') if x != '.empty'])
 }
+
+CONFIG_FILES=' '.join([ os.path.join("config",x) for x in os.listdir('config') if x != '.empty'])
 
 def create_make_config():
 
+    try:
+        d = read_make_config()
+    except:
+        d = {}
+
     fmt = { "make.config" :'{0}={1}\n' , 
-            ".make.config.sh": '{0}="{1}"\n' }
+            ".make.config.sh": 'export {0}="{1}"\n' }
+    
+    for var,default in d_default.iteritems():
+        if var not in d:
+            try:
+                cur = os.environ[var] 
+            except KeyError:
+                cur = default
+            d[var]=cur
+        
     for filename in fmt:
-        with open(filename,'w') as out:
-            for var,default in d_default.iteritems():
-                try:
-                    cur = os.environ[var] 
-                except KeyError:
-                    cur = default
-                out.write(fmt[filename].format(var,cur))
+        out = ""
+        for var,default in d_default.iteritems():
+            cur = d[var]
+            out += fmt[filename].format(var,cur)
+        write_if_different(filename,out)
+    
+    return d
+
 
 
 def read_make_config():
@@ -47,9 +76,7 @@ def read_make_config():
 
 def create_build_ninja():
     
-    create_make_config()
-
-    d = read_make_config()
+    d=create_make_config()
 
     d["irpf90_files"] = [ "src/{0}".format(x) for x in
         """
@@ -71,20 +98,13 @@ def create_build_ninja():
         
 
     template = """
-rule build_archive
-   command = git archive --format=tar HEAD > EZFIO.{VERSION}.tar && mkdir -p EZFIO && cd EZFIO && tar -xvf ../EZFIO.{VERSION}.tar && cd .. && rm EZFIO.{VERSION}.tar && tar -zcvf EZFIO.{VERSION}.tar.gz EZFIO && rm -rf EZFIO
-   description = Building archive
-
-rule build_make_config
-   command = python configure.py
-   description = Creating make.config
 
 rule compile_irpf90
-   command = cd src ; {IRPF90} --ninja
+   command = bash -c 'source .make.config.sh ; cd src ; {IRPF90} --ninja'
    description = Compiling IRPF90
 
 rule build_irpf90_a
-   command = {NINJA} -C src/IRPF90_temp
+   command = {NINJA} -C src/IRPF90_temp && touch $out
    description = Compiling Fortran files
 
 rule build_libezfio_a
@@ -103,9 +123,6 @@ rule build_ocaml
    command = cd src ; python create_ocaml.py
    description = Building Ocaml module
 
-
-build make.config: build_make_config | configure.py 
-
 build {irpf90_files}: compile_irpf90 | {irpf90_sources} {CONFIG_FILES}
 
 build src/IRPF90_temp/irpf90.a: build_irpf90_a | {irpf90_files}
@@ -119,9 +136,8 @@ build Python/ezfio.py: build_python | lib/libezfio.a
 build Ocaml/ezfio.ml: build_ocaml | lib/libezfio.a
 
 """
-
-    with open('generated.ninja','w') as f:
-        f.write(template.format(**d))
+    d["CONFIG_FILES"] = CONFIG_FILES
+    write_if_different('generated.ninja',template.format(**d))
 
 
 if __name__ == '__main__':
