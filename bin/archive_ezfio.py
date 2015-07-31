@@ -37,7 +37,7 @@ def main():
     f_name = f[4:]
     try:
       exec """d['%s'] = ezfio.%s"""%(f_name,f_name)
-    except:
+    except IOError:
       if do_verbose:
         print "%-40s [%5s]"%(f_name, "Empty")
     else:
