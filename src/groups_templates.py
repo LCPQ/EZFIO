@@ -239,11 +239,40 @@ end
 #---------
 
 attributes_c = """
-void ezfio_set_%(group)s_%(var)s(%(type)s %(var)s)
+void ezfio_set_%(group)s_%(var)s(%(ctype)s %(var)s)
 {
   ezfio_set_%(group)s_%(var)s_(&%(var)s);
 }
+
+void ezfio_get_%(group)s_%(var)s(%(ctype)s *%(var)s)
+{
+  ezfio_get_%(group)s_%(var)s_(%(var)s);
+}
+
+bool ezfio_has_%(group)s_%(var)s()
+{
+  ezfio_has_%(group)s_%(var)s_();
+}
 """
+
+attributes_arr_c = """
+void ezfio_set_%(group)s_%(var)s(%(ctype)s %(var)s)
+{
+  ezfio_set_%(group)s_%(var)s_(&%(var)s, 1);
+}
+
+void ezfio_get_%(group)s_%(var)s(%(ctype)s *%(var)s)
+{
+  ezfio_get_%(group)s_%(var)s_(%(var)s, 1);
+}
+
+bool ezfio_has_%(group)s_%(var)s()
+{
+  ezfio_has_%(group)s_%(var)s_();
+}
+"""
+
+calculated_c = attributes_c
 
 c_header = """
 #ifndef EZFIO_H
