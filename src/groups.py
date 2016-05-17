@@ -94,7 +94,6 @@ for group in groups.keys():
         buffer = re.sub(r"at\((.*),(.*)\)",r'\1(\2)',buffer)
         print buffer
         print >>file_py, calculated_py%d
-        print >>file_c, calculated_c%d
     elif type == "buffered":
       d = { 'group': group,
             'var': var,
