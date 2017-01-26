@@ -1,5 +1,3 @@
-BUILD_SYSTEM= make
-
 .EXPORT_ALL_VARIABLES:
 include ../make.config
 
@@ -53,10 +51,10 @@ static: ../lib/libezfio.a ../lib/libezfio_irp.a
 ../lib/libezfio_irp.a: ../lib/libezfio.a
 	cp ../lib/libezfio.a ../lib/libezfio_irp.a
 
-../Python/ezfio.py:
+../Python/ezfio.py: ../lib/libezfio.a
 	python create_python.py
 
-../Ocaml/ezfio.ml:
+../Ocaml/ezfio.ml: ../lib/libezfio.a
 	python create_ocaml.py
 
 IRPF90_temp/irpf90.a: $(BUILD_FILE)
