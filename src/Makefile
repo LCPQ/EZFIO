@@ -1,60 +1,71 @@
-#   EZFIO is an automatic generator of I/O libraries
-#   Copyright (C) 2009 Anthony SCEMAMA, CNRS
-#
-#   This program is free software; you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation; either version 2 of the License, or
-#   (at your option) any later version.
-#
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License along
-#   with this program; if not, write to the Free Software Foundation, Inc.,
-#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#
-#   Anthony Scemama
-#   LCPQ - IRSAMC - CNRS
-#   Universite Paul Sabatier
-#   118, route de Narbonne      
-#   31062 Toulouse Cedex 4      
-#   scemama@irsamc.ups-tlse.fr
-
-DEFAULT_TARGET: all
-
+.EXPORT_ALL_VARIABLES:
 include ../make.config
-export
 
-include irpf90.make
+# Dark magic below modify with caution!
+# "You are Not Expected to Understand This"
+#                     .
+#           /^\     .
+#      /\   "V",
+#     /__\   I      O  o
+#    //..\\  I     .
+#    \].`[/  I
+#    /l\/j\  (]    .  O
+#   /. ~~ ,\/I          .
+#   \\L__j^\/I       o
+#    \/--v}  I     o   .
+#    |    |  I   _________
+#    |    |  I c(`       ')o
+#    |    l  I   \.     ,/
+#  _/j  L l\_!  _//^---^\\_
 
-irpf90.make: $(wildcard *.irp.f) ../config/* 
-	$(IRPF90)
 
-include ../version
+ifeq ($(BUILD_SYSTEM),ninja)
+	BUILD_FILE=IRPF90_temp/build.ninja
+	IRPF90FLAGS += -j
+else ifeq ($(BUILD_SYSTEM),make)
+	BUILD_FILE=IRPF90_temp/build.make
+	BUILD_SYSTEM += -j
+else
+DUMMY:
+	$(error 'Wrong BUILD_SYSTEM: $(BUILD_SYSTEM)')
+endif
+
+define run_and_touch
+        $(BUILD_SYSTEM) -C $(dir $(1) ) -f $(notdir $(1) ) $(addprefix $(CURDIR)/, $(2)) && touch $(2)
+endef
+
+export PYTHONPATH:=$(CURDIR):$(PYTHONPATH)
+
 
 .PHONY: static all
 
 all: static ../Python/ezfio.py ../Ocaml/ezfio.ml
-
 static: ../lib/libezfio.a ../lib/libezfio_irp.a
 
 ../lib/libezfio.a: IRPF90_temp/irpf90.a
 	rm -f ../lib/libezfio.a
-	$(AR) cru ../lib/libezfio.a $(OBJ1)
+	cp  IRPF90_temp/irpf90.a ../lib/libezfio.a
 	$(RANLIB) ../lib/libezfio.a
 
+#No more irp_stack
 ../lib/libezfio_irp.a: ../lib/libezfio.a
-	rm -f ../lib/libezfio_irp.a
 	cp ../lib/libezfio.a ../lib/libezfio_irp.a
-	$(AR) dv ../lib/libezfio_irp.a irp_stack.irp.o
-	$(RANLIB) ../lib/libezfio_irp.a
 
-../Python/ezfio.py:
+../Python/ezfio.py: ../lib/libezfio.a
 	python create_python.py
 
-../Ocaml/ezfio.ml:
+../Ocaml/ezfio.ml: ../lib/libezfio.a
 	python create_ocaml.py
 
+IRPF90_temp/irpf90.a: $(BUILD_FILE)
+	$(call run_and_touch, $<, $@)
 
+$(BUILD_FILE): $(shell find .  -maxdepth 2 -path ./IRPF90_temp -prune -o -name '*.irp.f' -print) ../config/*
+	$(IRPF90) $(IRPF90FLAGS)
+
+clean:
+	rm -f -- $(BUILD_FILE) $(shell find IRPF90_temp -type f \( -name "*.o" -o -name "*.mod" -name "*.a" \)  -delete;)
+	rm -f ../lib/libezfio.a ../lib/libezfio_irp.a
+
+veryclean: clean
+	rm -rf IRPF90_temp/ IRPF90_man/ irpf90_entities dist tags

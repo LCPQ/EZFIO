@@ -26,7 +26,7 @@ d_default = {
   "FCFLAGS" : '-O2',
   "RANLIB" : 'ranlib',
   "AR" : 'ar',
-  "NINJA" : 'ninja',
+  "BUILD_SYSTEM" : 'make'
 }
 
 CONFIG_FILES=' '.join([ os.path.join("config",x) for x in os.listdir('config') if x != '.empty'])
@@ -112,7 +112,7 @@ rule build_libezfio_a
    description = Building libezfio.a
 
 rule build_libezfio_irp_a
-   command = cp lib/libezfio.a lib/libezfio_irp.a ; {AR} dv lib/libezfio_irp.a irp_stack.irp.o > /dev/null ; {RANLIB} lib/libezfio_irp.a
+   command = cp lib/libezfio.a lib/libezfio_irp.a ; {RANLIB} lib/libezfio_irp.a
    description = Building libezfio_irp.a
 
 rule build_python
@@ -141,5 +141,4 @@ build Ocaml/ezfio.ml: build_ocaml | lib/libezfio.a
 
 
 if __name__ == '__main__':
-
-    create_build_ninja()
+	create_build_ninja()
