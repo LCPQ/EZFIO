@@ -1,35 +1,47 @@
-IRPF90= python ~/Work/Project/p16.03/irpf90/src/irpf90.py
-IRPF90FLAGS=  -I ./
 BUILD_SYSTEM= make
 
-export LD_LIBARY_PATH = 
-export CXX = g++
-export CXXFLAGS = -O2
-export CC = gcc
-export FC = gfortran
-export CFLAGS = -O2
-export FCFLAGS = -O2
-export AR = AR
-export RANLIB = ranlib
+.EXPORT_ALL_VARIABLES:
+include ../make.config
+
+# Dark magic below modify with caution!
+# "You are Not Expected to Understand This"
+#                     .
+#           /^\     .
+#      /\   "V",
+#     /__\   I      O  o
+#    //..\\  I     .
+#    \].`[/  I
+#    /l\/j\  (]    .  O
+#   /. ~~ ,\/I          .
+#   \\L__j^\/I       o
+#    \/--v}  I     o   .
+#    |    |  I   _________
+#    |    |  I c(`       ')o
+#    |    l  I   \.     ,/
+#  _/j  L l\_!  _//^---^\\_
+
 
 ifeq ($(BUILD_SYSTEM),ninja)
-	CMD_PHONY=-t  # Chose a specific target
 	BUILD_FILE=IRPF90_temp/build.ninja
-	IRPF90FLAGS += -j # Create ninja
-else
-	CMD_PHONY= -j # All job abalaible
+	IRPF90FLAGS += -j
+else ifeq ($(BUILD_SYSTEM),make)
 	BUILD_FILE=IRPF90_temp/build.make
+	BUILD_SYSTEM += -j
+else
+DUMMY:
+	$(error 'Wrong BUILD_SYSTEM: $(BUILD_SYSTEM)')
 endif
 
-mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-current_dir := $(dir $(mkfile_path))
+define run_and_touch
+        $(BUILD_SYSTEM) -C $(dir $(1) ) -f $(notdir $(1) ) $(addprefix $(CURDIR)/, $(2)) && touch $(2)
+endef
+
+export PYTHONPATH:=$(CURDIR):$(PYTHONPATH)
+
 
 .PHONY: static all
 
-export PYTHONPATH:=$(current_dir):$(PYTHONPATH)
-
 all: static ../Python/ezfio.py ../Ocaml/ezfio.ml
-
 static: ../lib/libezfio.a ../lib/libezfio_irp.a
 
 ../lib/libezfio.a: IRPF90_temp/irpf90.a
@@ -37,7 +49,7 @@ static: ../lib/libezfio.a ../lib/libezfio_irp.a
 	cp  IRPF90_temp/irpf90.a ../lib/libezfio.a
 	$(RANLIB) ../lib/libezfio.a
 
-
+#No more irp_stack
 ../lib/libezfio_irp.a: ../lib/libezfio.a
 	cp ../lib/libezfio.a ../lib/libezfio_irp.a
 
@@ -48,15 +60,14 @@ static: ../lib/libezfio.a ../lib/libezfio_irp.a
 	python create_ocaml.py
 
 IRPF90_temp/irpf90.a: $(BUILD_FILE)
-	$(BUILD_SYSTEM) -C $(dir $^) -f $(notdir $^) $(CMD_PHONY) $(current_dir)$@ && touch $@
+	$(call run_and_touch, $<, $@)
 
-$(BUILD_FILE): $(shell find . -path ./IRPF90_temp -prune -o -name '*.irp.f' -maxdepth 2  -print)
+$(BUILD_FILE): $(shell find .  -maxdepth 2 -path ./IRPF90_temp -prune -o -name '*.irp.f' -print) ../config/*
 	$(IRPF90) $(IRPF90FLAGS)
 
-clean: $(BUILD_FILE)
-	$(BUILD_SYSTEM) -f $^ $(CMD_PHONY) clean
-	rm -f $(BUILD_FILE)
-	rm -f ../lib/libezfio.a ../lib/libezfio_irp.a	
+clean:
+	rm -f -- $(BUILD_FILE) $(shell find IRPF90_temp -type f \( -name "*.o" -o -name "*.mod" -name "*.a" \)  -delete;)
+	rm -f ../lib/libezfio.a ../lib/libezfio_irp.a
 
 veryclean: clean
-	rm -rf IRPF90_temp/ IRPF90_man/ irpf90_entities dist tags $(EXE)
+	rm -rf IRPF90_temp/ IRPF90_man/ irpf90_entities dist tags
