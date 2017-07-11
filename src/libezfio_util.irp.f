@@ -29,8 +29,12 @@
   ! Current process ID
   END_DOC
   integer                        :: getpid
+  character*(240)                :: hostname
   PID = getpid()
   write(PID_str,'(I8.8)') PID
+  call HOSTNM(hostname)
+  write(PID_str,'(A,''.'',I8.8,X)') trim(hostname), PID
+  PID_str = trim(PID_str)
 END_PROVIDER
 
 logical function ezfio_exists(path)
@@ -75,7 +79,7 @@ subroutine libezfio_openz(filename,mode,err)
  character*(*)                  :: filename, mode
  character*(1024)               :: fifo
  integer                        :: err
- fifo = trim(filename)//'.'//PID_str
+ fifo = trim(filename)//'.'//trim(PID_str)
  err=1
  
  if (mode(1:1) == 'r') then
@@ -97,7 +101,7 @@ subroutine libezfio_closez(filename,mode)
   END_DOC
  character*(*)                  :: filename, mode
  character*(1024)               :: fifo
- fifo = trim(filename)//'.'//PID_str
+ fifo = trim(filename)//'.'//trim(PID_str)
  if (mode(1:1) == 'w') then
    close(unit=libezfio_iunit)
    call system('gzip -c < '//trim(fifo)//' > '//trim(filename))
@@ -141,7 +145,7 @@ subroutine ezfio_write_%(type_short)s(dir,fil,dat)
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
-  l_filename(1)=trim(dir)//'/.'//fil//'.'//PID_str
+  l_filename(1)=trim(dir)//'/.'//fil//'.'//trim(PID_str)
   l_filename(2)=trim(dir)//'/'//fil
   open(unit=libezfio_iunit,file=l_filename(1),form='FORMATTED',action='WRITE')
   write(libezfio_iunit,%(fmt)s) dat
@@ -216,7 +220,7 @@ subroutine ezfio_write_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
-  l_filename(1)=trim(dir)//'/.'//fil//PID_str//'.gz'
+  l_filename(1)=trim(dir)//'/.'//fil//trim(PID_str)//'.gz'
   l_filename(2)=trim(dir)//'/'//fil//'.gz'
   
   err = 0
