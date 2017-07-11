@@ -40,6 +40,9 @@ print >>file_py, """
   version = property(fset=None,fget=get_version)
 """%(v)
 
+file_c = open("../C/ezfio.h","w")
+print >>file_c, c_header
+
 import sys
 
 for group in groups.keys():
@@ -77,6 +80,7 @@ for group in groups.keys():
               'group': group,
               'dims': strdims}
         print attributes%d
+        print >>file_c, attributes_c%d
         print >>file_py, attributes_py%d
       else:
         d = { 'type': type,
@@ -96,6 +100,7 @@ for group in groups.keys():
             'dims_py': dims_py,
             'dims': dims }
       print buffered%d
+      print >>file_c, buffered_c%d
       print >>file_py, buffered_py%d
     else:
       dims_loop = ''
@@ -142,5 +147,9 @@ for group in groups.keys():
             'declar_loop' : declar_loop}
       print attributes_arr%d
       print >>file_py, attributes_arr_py%d
+      print >>file_c, attributes_arr_c%d
 
+print >>file_c, c_footer
 file_py.close()
+file_c.close()
+

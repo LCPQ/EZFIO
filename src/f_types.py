@@ -27,7 +27,7 @@ format= {
  'integer'         : ["'(I20)'", "%20d"],
  'real'            : ["'(E24.15)'","%24.15E"],
  'double precision': ["'(E24.15)'","%24.15E"],
- 'logical'         : ["'(L)'","%c"],
+ 'logical'         : ["'(L1)'","%c"],
  'character*(*)'   : ["'(A)'","%s"]
  }
 

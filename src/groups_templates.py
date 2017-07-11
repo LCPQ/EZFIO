@@ -239,38 +239,48 @@ end
 #---------
 
 attributes_c = """
-void ezfio_set_%(group)s_%(var)s(%(type)s %(var)s)
+void ezfio_set_%(group)s_%(var)s(%(ctype)s %(var)s)
 {
   ezfio_set_%(group)s_%(var)s_(&%(var)s);
 }
+
+void ezfio_get_%(group)s_%(var)s(%(ctype)s *%(var)s)
+{
+  ezfio_get_%(group)s_%(var)s_(%(var)s);
+}
+
+int ezfio_has_%(group)s_%(var)s()
+{
+  ezfio_has_%(group)s_%(var)s_();
+}
 """
 
-c_header = """
-#ifndef EZFIO_H
-#define EZFIO_H
+attributes_arr_c = """
+void ezfio_set_%(group)s_%(var)s(%(ctype)s %(var)s)
+{
+  ezfio_set_%(group)s_%(var)s_(&%(var)s);
+}
+
+void ezfio_get_%(group)s_%(var)s(%(ctype)s *%(var)s)
+{
+  ezfio_get_%(group)s_%(var)s_(%(var)s);
+}
+
+int ezfio_has_%(group)s_%(var)s()
+{
+  ezfio_has_%(group)s_%(var)s_();
+}
+"""
+
+calculated_c = attributes_c
+
+c_header = """#ifndef EZFIO_H\n#define EZFIO_H
+
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-"""
-
-c_footer = """
-#ifdef  __cplusplus
-}
-#endif
-#endif
-"""
-
-
-file_h = [c_header]
-file_h +=[ """
-void ezfio_set_file_(char* filename, long filename_size);
-
-void ezfio_read_buffer_(int* indices,double* values, int* isize);
-void ezfio_write_buffer_(int* indices,double* values, int* isize);
-"""]
-
-file_c = [ """
 
 typedef struct
 {
@@ -282,7 +292,7 @@ void ezfio_set_file(char* filename)
 {
   long len;
   len = strlen(filename);
-  ezfio_set_file_(filename,mlen);
+  ezfio_set_file_(filename,len);
 }
 
 sparse ezfio_read_buffer(int isize)
@@ -297,7 +307,15 @@ void ezfio_write_buffer(sparse data, int isize)
   ezfio_write_buffer_(data.indices,data.values,&isize);
 }
 
-""" ]
+"""
+
+c_footer = """
+#ifdef  __cplusplus
+}
+#endif
+#endif
+"""
+
 
 
 
