@@ -23,7 +23,7 @@
 !   scemama@irsamc.ups-tlse.fr
 
  BEGIN_PROVIDER [ integer, PID ]
-&BEGIN_PROVIDER [ character*(8), PID_str ]
+&BEGIN_PROVIDER [ character*(256), PID_str ]
   implicit none
   BEGIN_DOC
   ! Current process ID
