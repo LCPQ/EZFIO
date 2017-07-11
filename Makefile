@@ -28,7 +28,7 @@ include make.config
 .PHONY: default clean veryclean archive 
 
 default: make.config
-	cd src && BUILD_SYSTEM=make $(MAKE)
+	cd src && $(MAKE)
 
 clean:
 	- bash -c "[[ -f lib/libezfio.a ]] && rm $$PWD/lib/*"
