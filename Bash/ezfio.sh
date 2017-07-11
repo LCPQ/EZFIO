@@ -4,7 +4,7 @@ EZFIO_ROOT=$( cd $(dirname "${BASH_SOURCE}")/..  ; pwd -P )
 
 function _ezfio_py()
 {
-  python "${EZFIO_ROOT}/Python/ezfio.py" $@
+  python ${EZFIO_ROOT}/Python/ezfio.py $@
 }
 
 
@@ -84,11 +84,11 @@ function _ezfio_set_file()
 {
   _require_first_argument $@ || return 1
 
-  if [[ ! -d "$1" ]]
+  if [[ ! -d $1 ]]
   then
-    mkdir -p "$1" || return 1
+    mkdir -p $1 || return 1
   fi
-  export EZFIO_FILE="$1"
+  export EZFIO_FILE=$1
   _ezfio_info "Set file ${EZFIO_FILE}"
   return 0
 }
@@ -106,12 +106,12 @@ function _ezfio_has()
   _require_ezfio_file        || return 1
   _require_first_argument $@ || return 1
   
-  if [[ ! -d "${EZFIO_FILE}/${1,,}" ]]
+  if [[ ! -d ${EZFIO_FILE}/${1,,} ]]
   then
       return 1
   fi
   
-  if [[ -z "$2" ]]
+  if [[ -z $2 ]]
   then
       return 0
   fi
@@ -123,14 +123,14 @@ function _ezfio_get()
 {
   _require_ezfio_file        || return 1
 
-  if [[ -z "$1" ]] 
+  if [[ -z $1 ]] 
   then
     ls ${EZFIO_FILE} && return 0 || return 1
   fi
 
-  if [[ -z "$2" ]]
+  if [[ -z $2 ]]
   then
-      ls "${EZFIO_FILE}/${1,,}" && return 0 || return 1
+      ls ${EZFIO_FILE}/${1,,} && return 0 || return 1
   fi
 
   _ezfio_py get $@ && return 0 || return 1
@@ -142,11 +142,11 @@ function _ezfio_set()
   _require_first_argument  $@ || return 1
   _require_second_argument $@ || return 2
 
-  if [[ -z "$3" ]]
+  if [[ -z $3 ]]
   then
     _ezfio_py set $@ || return 1
   else
-    echo "$3" | _ezfio_py set "$1" "$2" || return 1
+    echo $3 | _ezfio_py set $1 $2 || return 1
   fi
   return 0
 }

@@ -128,16 +128,16 @@ logical function exists(path)
   character*(*) :: path
   character*(32) :: V
   inquire(file=trim(path)//'/.version',exist=exists)
-!  if (exists) then
-!    open(libezfio_iunit,file=trim(path)//'/.version')
-!    read(libezfio_iunit,*) V
-!    close(libezfio_iunit)
+  if (exists) then
+    open(libezfio_iunit,file=trim(path)//'/.version')
+    read(libezfio_iunit,*) V
+    close(libezfio_iunit)
 !   integer :: char_to_version
 !   if (char_to_version(V) > char_to_version(libezfio_version)) then
 !     call ezfio_error(irp_here, 'This file was generated with version '//trim(V)//&
 !     '  but the current installed version is '//trim(libezfio_version)//'')
 !   endif
-!  endif
+  endif
 end function
 
 subroutine ezfio_set_file(filename_in)
