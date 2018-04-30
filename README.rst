@@ -186,7 +186,7 @@ Create a file named ``create_input.py`` with:
 
 .. code-block:: python
 
-  #!/usr/bin/python
+  #!/usr/bin/python2
   
   import sys
   EZFIO = "./EZFIO"  # Put here the absolute path to the EZFIO directory
@@ -229,7 +229,7 @@ Execute the script:
 
 .. code-block:: bash
 
-  $ python create_input.py
+  $ python2 create_input.py
   18.0
 
 The printed mass is correct, and a new directory (``Water``) was created with our data:

@@ -1,7 +1,7 @@
 include version
 
 rule build_generated_ninja
-   command = python configure.py
+   command = python2 configure.py
    description = Creating generated.ninja
 
 rule run_ninja

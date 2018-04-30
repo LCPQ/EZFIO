@@ -45,7 +45,7 @@ archive: distclean
 	rm -rf EZFIO
 
 make.config: 
-	python configure.py
+	./configure.py
 
 veryclean:
 	$(MAKE) -C src veryclean

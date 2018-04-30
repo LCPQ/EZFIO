@@ -116,11 +116,11 @@ rule build_libezfio_irp_a
    description = Building libezfio_irp.a
 
 rule build_python
-   command = cd src ; python create_python.py
+   command = cd src ; python2 create_python.py
    description = Building Python module
 
 rule build_ocaml
-   command = cd src ; python create_ocaml.py
+   command = cd src ; python2 create_ocaml.py
    description = Building Ocaml module
 
 build {irpf90_files}: compile_irpf90 | {irpf90_sources} {CONFIG_FILES}
