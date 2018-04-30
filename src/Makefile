@@ -52,10 +52,10 @@ static: ../lib/libezfio.a ../lib/libezfio_irp.a
 	cp ../lib/libezfio.a ../lib/libezfio_irp.a
 
 ../Python/ezfio.py: ../lib/libezfio.a
-	python create_python.py
+	python2 create_python.py
 
 ../Ocaml/ezfio.ml: ../lib/libezfio.a
-	python create_ocaml.py
+	python2 create_ocaml.py
 
 IRPF90_temp/irpf90.a: $(BUILD_FILE)
 	$(call run_and_touch, $<, $@)

@@ -26,7 +26,8 @@ d_default = {
   "FCFLAGS" : '-O2',
   "RANLIB" : 'ranlib',
   "AR" : 'ar',
-  "BUILD_SYSTEM" : 'make'
+  "BUILD_SYSTEM" : 'make',
+  "NINJA" : 'ninja',
 }
 
 CONFIG_FILES=' '.join([ os.path.join("config",x) for x in os.listdir('config') if x != '.empty'])
