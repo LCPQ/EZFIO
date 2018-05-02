@@ -4,7 +4,7 @@ EZFIO_ROOT=$( cd $(dirname "${BASH_SOURCE}")/..  ; pwd -P )
 
 function _ezfio_py()
 {
-  python ${EZFIO_ROOT}/Python/ezfio.py $@
+  python2 ${EZFIO_ROOT}/Python/ezfio.py $@
 }
 
 
