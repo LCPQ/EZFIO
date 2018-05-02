@@ -29,15 +29,12 @@
   ! Current process ID
   END_DOC
   integer                        :: getpid
-  character*(240) :: hostname
+  character*(240)                :: hostname
   PID = getpid()
   write(PID_str,'(I8.8)') PID
   call HOSTNM(hostname)
   write(PID_str,'(A,''.'',I8.8,X)') trim(hostname), PID
   PID_str = trim(PID_str)
-  print *,  PID_str
-  call sleep(1)
-
 END_PROVIDER
 
 logical function ezfio_exists(path)
