@@ -51,10 +51,11 @@ static: ../lib/libezfio.a ../lib/libezfio_irp.a
 	$(AR) dv ../lib/libezfio_irp.a irp_stack.irp.o
 	$(RANLIB) ../lib/libezfio_irp.a
 
-../Python/ezfio.py:
-	python create_python.py
 
-../Ocaml/ezfio.ml:
-	python create_ocaml.py
+../Python/ezfio.py: ../lib/libezfio.a
+	python2 create_python.py
+
+../Ocaml/ezfio.ml: ../lib/libezfio.a
+	python2 create_ocaml.py
 
 

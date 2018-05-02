@@ -111,7 +111,7 @@ subroutine libezfio_closez(filename,mode)
 end
 
 
-BEGIN_SHELL [ /usr/bin/python ]
+BEGIN_SHELL [ /usr/bin/env python2 ]
 from f_types import format, t_short
 
 

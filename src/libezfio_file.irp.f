@@ -159,7 +159,7 @@ subroutine ezfio_set_file(filename_in)
     call ezfio_mkdir(trim(libezfio_filename)//'/ezfio')
     call system('LANG= date > '//trim(libezfio_filename)//'/ezfio/creation')
     call system('echo $USER > '//trim(libezfio_filename)//'/ezfio/user')
-    BEGIN_SHELL [ /usr/bin/python ]
+    BEGIN_SHELL [ /usr/bin/env python2 ]
 import os
 command = "'echo %s > '//trim(libezfio_filename)//'/ezfio/library'"
 cwd = os.getcwd()
@@ -178,7 +178,7 @@ subroutine ezfio_finish()
 ! Close all open buffers
  END_DOC
  close(libezfio_iunit)
- BEGIN_SHELL [ /usr/bin/python ]
+ BEGIN_SHELL [ /usr/bin/env python2 ]
 import os
 from zlib import crc32
 print '  call irp_finalize_%s'%(str(abs(crc32(os.getcwd()))))

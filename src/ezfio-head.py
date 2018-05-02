@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #   EZFIO is an automatic generator of I/O libraries
 #   Copyright (C) 2009 Anthony SCEMAMA, CNRS
 #

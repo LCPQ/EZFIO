@@ -22,7 +22,7 @@
 !   31062 Toulouse Cedex 4      
 !   scemama@irsamc.ups-tlse.fr
 
-BEGIN_SHELL [ /usr/bin/python ]
+BEGIN_SHELL [ /usr/bin/env python2 ]
 import groups
 END_SHELL
 

@@ -30,10 +30,12 @@ include make.config
 default: make.config
 	cd src && $(MAKE)
 
+
 clean:
 	- bash -c "[[ -f lib/libezfio.a ]] && rm $$PWD/lib/*"
 	- bash -c "[[ -f Python/ezfio.py ]] && rm $$PWD/Python/*"
 	- bash -c "[[ -f Ocaml/ezfio.ml ]] && rm $$PWD/Ocaml/*"
+	- bash -c "[[ -f Bash/ezfio.sh ]] && rm $$PWD/Bash/*"
 	- $(MAKE) -C $$PWD/src veryclean
 
 archive: distclean
@@ -44,7 +46,7 @@ archive: distclean
 	rm -rf EZFIO
 
 make.config: 
-	python configure.py
+	./configure.py
 
 veryclean:
 	$(MAKE) -C src veryclean
