@@ -165,6 +165,7 @@ subroutine ezfio_read_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
   %(type)s                       :: dat(dim_max)
   integer                        :: err
   character*(1024)               :: l_filename
+  character*(32), allocatable    :: buffer(:)
   l_filename=trim(dir)//'/'//fil//'.gz'
   
   err = 0
@@ -191,13 +192,14 @@ subroutine ezfio_read_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
       endif
     enddo
     
+    allocate (buffer(dim_max))
+    read(libezfio_iunit,'(A)') buffer(1:dim_max)
+    !$OMP PARALLEL DO PRIVATE(i)
     do i=1,dim_max
-      if (err /= 0) then
-        call ezfio_error(irp_here,'Error reading data in '//trim(l_filename)//&
-            '.')
-      endif
-      read(libezfio_iunit,%(fmt)s) dat(i)
+      read(buffer(i),%(fmt)s) dat(i)
     enddo
+    !$OMP END PARALLEL DO
+    deallocate(buffer)
     call libezfio_closez(trim(l_filename),'r')
     return
   else
@@ -216,7 +218,9 @@ subroutine ezfio_write_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
   integer, intent(in)            :: dim_max
   %(type)s, intent(in)           :: dat(dim_max)
   integer                        :: err
+  integer                        :: i
   character*(1024)               :: l_filename(2)
+  character*(32), allocatable    :: buffer(:)
   if (libezfio_read_only) then
     call ezfio_error(irp_here,'Read-only file.')
   endif
@@ -229,10 +233,14 @@ subroutine ezfio_write_array_%(type_short)s(dir,fil,rank,dims,dim_max,dat)
     write(libezfio_iunit,'(I3)') rank
     write(libezfio_iunit,'(30(I20,X))') dims(1:rank)
     
-    integer                        :: i
+    allocate (buffer(dim_max))
+    !$OMP PARALLEL DO PRIVATE(i)
     do i=1,dim_max
-      write(libezfio_iunit,%(fmt)s) dat(i)
+      write(buffer(i), %(fmt)s) dat(i)
     enddo
+    !$OMP END PARALLEL DO
+    write(libezfio_iunit,'(A)') buffer(1:dim_max)
+    deallocate(buffer)
     call libezfio_closez(trim(l_filename(1)),'w')
   endif
   call system( 'mv -f '//trim(l_filename(1))//' '//trim(l_filename(2)) )

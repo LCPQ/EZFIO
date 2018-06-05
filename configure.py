@@ -22,7 +22,7 @@ with open("version",'r') as f:
 d_default = {
   "VERSION" : version,
   "IRPF90" : 'irpf90',
-  "FC" : 'gfortran -g -ffree-line-length-none -fPIC',
+  "FC" : 'gfortran -g -ffree-line-length-none -fPIC -fopenmp',
   "FCFLAGS" : '-O2',
   "RANLIB" : 'ranlib',
   "AR" : 'ar',
